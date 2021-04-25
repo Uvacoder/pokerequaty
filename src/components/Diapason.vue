@@ -8,7 +8,7 @@
     <div class="grid-element suited" :class="{'in-diapason':value>2}">AKs</div>
     <div class="grid-element suited" :class="{'in-diapason':value>4}">AQs</div>
     <div class="grid-element suited" :class="{'in-diapason':value>6}">AJs</div>
-    <div class="grid-element suited" :class="{'in-diapason':value>9}">ATs</div>
+    <div class="grid-element suited" :class="{'in-diapason':value>=9}">ATs</div>
     <div class="grid-element suited" :class="{'in-diapason':value>11}">A9s</div>
     <div class="grid-element suited" :class="{'in-diapason':value>13}">A8s</div>
     <div class="grid-element suited" :class="{'in-diapason':value>15}">A7s</div>
