@@ -30,9 +30,14 @@ export const store = new Vuex.Store({
       fives:['5♠','5♦','5♣','5♥'],
       fours:['4♠','4♦','4♣','4♥'],
       triples:['3♠','3♦','3♣','3♥'],
-      deuces:['2♠','2♦','2♣','2♥']
+      deuces:['2♠','2♦','2♣','2♥'],
+
+      outputChances:[]
     },
     getters: {
+      GET_OUTPUT_CHANCES: state=>{
+        return state.outputChances;
+      },
       GET_ALL_CARDS: state=>{
         return state.allCards;
       },
@@ -105,13 +110,17 @@ export const store = new Vuex.Store({
       },
     },
     mutations: {
-      
+      CLEAR_OUTPUT_CHANCES(state){
+        state.outputChances=[];
+      },
+      SET_OUTPUT_CHANCES(state,arr){
+        state.outputChances=arr.slice(0);
+      },
       SET_USED_CARD(state,arr){
         let index=arr[0];
         let value=arr[1];
         state.usedCards[index]=value;
-        //console.log(state.usedCards);
-        
+        //console.log(state.usedCards);    
       },   
       SET_BIGBLIND(state,value){
         state.bigBlind=value;
@@ -123,8 +132,7 @@ export const store = new Vuex.Store({
         state.offset=value; 
       },
       SET_DELETE_CHECK :(state,value)=>{
-        state.deleteCheck=value;
-        
+        state.deleteCheck=value;  
       },
       SET_INPUT :(state,arr)=>{    
         state.activeInputs[arr[0]]=arr[1];
@@ -134,8 +142,8 @@ export const store = new Vuex.Store({
       },
       SET_ACTIVE :(state,index)=> {
         state.clicked[index]=1;
-        
-       },
+ 
+      },
        SET_INDEX_ON_POSITION :(state,arr) => {
         state.positionsCard[arr[1]-1]=arr[0];
       },
@@ -159,24 +167,25 @@ export const store = new Vuex.Store({
         
         let combinations=[];
         //let drawCombs=[];
-       let combReady=[];
+        let combReady=[];
+        let chances=[];
       
       //only cards on table 
-      let tableCards=[{value:usedcards[0],inPair:1,inFlesh:[],inStraight:[]},
-      {value:usedcards[1],inPair:1,inFlesh:[],inStraight:[]},
-      {value:usedcards[2],inPair:1,inFlesh:[],inStraight:[]},
-      {value:usedcards[3],inPair:1,inFlesh:[],inStraight:[]},
-      {value:usedcards[4],inPair:1,inFlesh:[],inStraight:[]},
-      ]
+        let tableCards=[{value:usedcards[0],inPair:1,inFlesh:[],inStraight:[]},
+        {value:usedcards[1],inPair:1,inFlesh:[],inStraight:[]},
+        {value:usedcards[2],inPair:1,inFlesh:[],inStraight:[]},
+        {value:usedcards[3],inPair:1,inFlesh:[],inStraight:[]},
+        {value:usedcards[4],inPair:1,inFlesh:[],inStraight:[]},
+        ];
 
-      let chancesOfCombs={
-        Flesh:0,
-        Straight:0,
-        StraightFlesh:0,
-      };
-      console.log(chancesOfCombs);
+        let chancesOfCombs={
+          Flesh:0,
+          Straight:0,
+          StraightFlesh:0,
+        };
+        //сonsole.log(chancesOfCombs);
 
-      let set=0,pair1=0,pair2=0,quad=0;
+        let set=0,pair1=0,pair2=0,quad=0;
       
 
        //looking table cards 
@@ -186,7 +195,7 @@ export const store = new Vuex.Store({
                 tableCards[i].inStraight.push(usedcards[i].charAt(0));
                 tableCards[i].inFlesh.push(usedcards[i]);
                 
-            for (let j = i+1; j < usedcards.length; j++) { 
+            for (let j = i+1; j < 4; j++) { 
               if (usedcards[j]!='') {
               tableCards[i].inStraight.push(usedcards[j].charAt(0));
               tableCards[i].inFlesh.push(usedcards[j]);
@@ -337,8 +346,8 @@ export const store = new Vuex.Store({
           }
           
         }
-        console.log('all combs '+combinations);
-        console.log('comb len '+combinations.length);
+       // console.log('all combs '+combinations);
+       // console.log('comb len '+combinations.length);
 
         for (let i = 0; i< tableCards.length; i++) {
           if (tableCards[i].value!='') {
@@ -381,8 +390,7 @@ export const store = new Vuex.Store({
               tmpForStr=Array.from(new Set(tmpForStr));  
               
               tmpForStr.sort(straightSort);
-              StraightStart=tmpForStr[tmpForStr.length-5];
-              StraightEnd=tmpForStr[tmpForStr.length-1];
+              
               
               if (checkFullHouse(tmpForFullHouse)) {
                 FullHouse++;
@@ -395,46 +403,58 @@ export const store = new Vuex.Store({
               else if (checkFlesh(tmpForFlesh) && checkStraight(tmpForStr)) {
                 StraightFlesh++;
                 
+                
               } 
               else if (checkFlesh(tmpForFlesh) ) {
                 Flesh++;
               } 
               else if (checkStraight(tmpForStr)) {
+                
                 Straight++;
                 
               }
             }
             } 
             if (pair>0) {
-              console.log('pair of '+tableCards[i].value+' percent: '+(pair/combinations.length).toFixed(2));
+              console.log('pair of '+tableCards[i].value+' percent: '+(pair/combinations.length*100).toFixed(2));
+              chances.push((pair/combinations.length*100).toFixed(2)+'%'+' Pair of '+tableCards[i].value);
             }
             if (SET>0) {
-              console.log('set of '+tableCards[i].value+' percent: '+(SET/combinations.length).toFixed(2));
+              console.log('set of '+tableCards[i].value+' percent: '+(SET/combinations.length*100).toFixed(2));
+              chances.push((SET/combinations.length*100).toFixed(2)+'%'+' Set of '+tableCards[i].value);
             }
             if (Straight>0) {
-              console.log('Straight from '+ StraightStart+' to ' +StraightEnd +': '+(Straight/combinations.length).toFixed(2));
+              console.log('Straight from '+ StraightStart+' to ' +StraightEnd +': '+(Straight/combinations.length*100).toFixed(2));
+              chances.push((Straight/combinations.length*100).toFixed(2)+'%'+ ' Straight from '+ StraightStart+' to ' +StraightEnd);
             }
-            if (Flesh>0) {
-              console.log('Flesh : '+(Flesh/combinations.length).toFixed(2));
+            if (Flesh>0 && Number(Flesh/combinations.length)>Number(chancesOfCombs.Flesh)) {
+              console.log('Flesh : '+(Flesh/combinations.length).toFixed(2)+'%');
+              chancesOfCombs.Flesh=Number(Flesh/combinations.length*100).toFixed(2)
             }
             if (FullHouse>0) {
-              console.log('FullHouse '+(FullHouse/combinations.length).toFixed(2))
+              console.log('FullHouse of '+tableCards[i].value +' ' +(FullHouse/combinations.length*100).toFixed(2))
+              chances.push((FullHouse/combinations.length*100).toFixed(2)+'%'+' Full-house')
             }
             if (QUAD>0) {
               console.log('quad of '+tableCards[i].value+' percent: '+(QUAD/combinations.length).toFixed(2));
+              chances.push((QUAD/combinations.length*100).toFixed(2)+'%'+' Quad of '+tableCards[i].value);
             }
             if (StraightFlesh>0) {
               console.log('StraightFlesh from '+ StraightStart+' to  ' +StraightEnd +': '+(StraightFlesh/combinations.length).toFixed(2));
-       
+              chances.push((StraightFlesh/combinations.length*100).toFixed(2)+'%'+ ' StraightFlesh from '+ StraightStart+' to ' +StraightEnd);
             }
             if (RoyalFlesh>0) {
               console.log('RoyalFlesh : '+(RoyalFlesh/combinations.length).toFixed(2));
+              chances.push((RoyalFlesh/combinations.length*100).toFixed(2)+'%'+' RoyalFlesh');
             }
 
         
         }
+        }if (chancesOfCombs.Flesh>0) {
+          chances.push(chancesOfCombs.Flesh+'%'+' Flesh');
         }
-
+        
+        context.commit('SET_OUTPUT_CHANCES',chances);
         /*
         let availKings=availableCards.filter(x => x.charAt(0)=='K');
         let availQueens=availableCards.filter(x => x.charAt(0)=='Q');
@@ -528,8 +548,7 @@ export const store = new Vuex.Store({
   function checkStraight(tmpArr) {
     
     if (tmpArr.length>4) {
-      
-    
+ 
     for (let i = 0; i < tmpArr.length; i++) {
       switch (tmpArr[i]) {
         case 'A':
@@ -563,7 +582,10 @@ export const store = new Vuex.Store({
     for (let i = 0; i < tmpArr.length-4; i++) {  
       
       if (Number(tmpArr[i])+1==tmpArr[i+1] && Number(tmpArr[i])+2==tmpArr[i+2] && Number(tmpArr[i])+3==tmpArr[i+3] && Number(tmpArr[i])+4==tmpArr[i+4] ) {
+        console.log('start: '+tmpArr[i]+', '+'end: '+tmpArr[i+4]);
         k++;
+        //this.StraightStart=tmpArr[i];
+       // this.StraightEnd=tmpArr[i+4];
       }  
     }
    
@@ -614,7 +636,37 @@ export const store = new Vuex.Store({
 
   function checkFullHouse(arr) {
     arr.sort(straightSort);
-    console.log(arr);
+    //console.log('fh arr '+arr);
+    let fhpair=false,fhset=false;
+    for (let i = 0; i < arr.length-2; i++) {
+     if (arr[i]==arr[i+2]) {
+        //console.log(arr[i]+'-i, '+arr[i+1]+' -i+2');
+         fhset=true;
+     }
+    }
+    //check any triples
+    
+    if (fhset) {
+      let i=0;
+      while (i<arr.length-2) {
+        if (arr[i]==arr[i+2]) {
+          i+=2;
+        } else if (arr[i]!=arr[i+2] && arr[i]==arr[i+1]) {
+          fhpair=true;
+        }
+        i++;
+      }
+      
+    } else {
+      return false;
+    }
+
+    if (fhset && fhpair) {
+      return true;
+    }
+    else{
+      return false;
+    }
   }
 
   function straightSort(a,b){

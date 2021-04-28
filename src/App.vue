@@ -11,6 +11,7 @@
     <button class="clear" @click="ClearAll" >Очистить все</button>
     <button class="find" @click="FindStat" >Расчет</button>
     
+    <ModalResults v-if="activeModal" :combs="outputChancesModal" @close="closeModal" />
   </div>
 </template>
 
@@ -18,7 +19,9 @@
 import Bets from './components/Bets.vue'
 import Diapason from './components/Diapason.vue'
 import MainPlayer from './components/MainPlayer.vue'
+import ModalResults from './components/ModalResults.vue'
 import Table from './components/Table.vue'
+
 
 
 
@@ -28,8 +31,9 @@ export default {
     MainPlayer,
     Diapason,
     Table,
-    Bets
-    
+    Bets,
+    ModalResults,
+       
   },
   
   data(){
@@ -39,14 +43,20 @@ export default {
       positions:['BB'],
       numbers: new Set(this.inputs),
       checks:[0,0,0,0,0,0],
-      
+      outputChancesModal:[],
+      activeModal:false
     }
   },
   
 
   methods :{
+    closeModal(){
+      this.activeModal=false;
+    },
     FindStat(){
       this.$store.dispatch('FIND_STAT');
+      this.outputChancesModal=this.$store.getters.GET_OUTPUT_CHANCES;
+      this.activeModal=true;
     },
 
     ClearAll(){

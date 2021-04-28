@@ -15,7 +15,12 @@
         </header>
         
         <div class="modal-body" >
-          <div class="combimation" v-for="(comb,index) in combs" :key=index>{{comb}}</div>
+          <div class="combimation" v-for="(comb,index) in combs" :key=index>
+            <p style="display:flex;justify-content:space-around">
+              <span>{{comb.substr(0,6)}}</span>
+              <span>{{comb.substr(6,Number(comb.length)-Number(6))}}</span>
+            </p>
+          </div>
         </div>
         
         
