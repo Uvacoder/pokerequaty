@@ -55,9 +55,11 @@ export default {
     },
     FindStat(){
       this.$store.dispatch('FIND_STAT');
+      this.$store.dispatch('FIND_PLAYER_ODDS');
       this.outputChancesModal=this.$store.getters.GET_OUTPUT_CHANCES;
       this.activeModal=true;
     },
+    
 
     ClearAll(){
       this.$store.dispatch('CLEAR_ALL');
@@ -81,7 +83,7 @@ export default {
       
       var prevOffset=this.$store.getters.GET_OFFSET;
       var curOffset=this.inputs.length-value;
-     this.$store.commit('SET_OFFSET',this.inputs.length-value);
+      this.$store.commit('SET_OFFSET',this.inputs.length-value);
 
       if (curOffset==0) {
         this.inputs.sort().reverse();

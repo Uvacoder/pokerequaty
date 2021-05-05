@@ -17,21 +17,8 @@ export const store = new Vuex.Store({
       usedCards:['','','','','','',''],
       allCards:['A♠','K♠','Q♠','J♠','T♠','9♠','8♠','7♠','6♠','5♠','4♠','3♠','2♠','A♣','K♣','Q♣','J♣','T♣','9♣','8♣','7♣','6♣','5♣','4♣','3♣','2♣',
       'A♦','K♦','Q♦','J♦','T♦','9♦','8♦','7♦','6♦','5♦','4♦','3♦','2♦','A♥','K♥','Q♥','J♥','T♥','9♥','8♥','7♥','6♥','5♥','4♥','3♥','2♥'],
-     
-      aces:['A♠','A♦','A♣','A♥'],
-      kings:['K♠','K♦','K♣','K♥'],
-      queens:['Q♠','Q♦','Q♣','Q♥'],
-      jacks:['J♠','J♦','J♣','J♥'],
-      tens:['10♠','10♦','10♣','10♥'],
-      nines:['9♠','9♦','9♣','9♥'],
-      eights:['8♠','8♦','8♣','8♥'],
-      sevens:['7♠','7♦','7♣','7♥'],
-      sixs:['6♠','6♦','6♣','6♥'],
-      fives:['5♠','5♦','5♣','5♥'],
-      fours:['4♠','4♦','4♣','4♥'],
-      triples:['3♠','3♦','3♣','3♥'],
-      deuces:['2♠','2♦','2♣','2♥'],
-
+      //not on table 
+      availCards:[],
       outputChances:[]
     },
     getters: {
@@ -43,6 +30,9 @@ export const store = new Vuex.Store({
       },
       GET_USED_CARDS :state =>{
         return state.usedCards;
+      },
+      GET_PLAYER_CARDS:state=>{
+        return [state.usedCards[5],state.usedCards[6]];
       },
       GET_BIGBLIND: state=>{
         return state.bigBlind;
@@ -68,46 +58,10 @@ export const store = new Vuex.Store({
       GET_OFFSET: state=>{
         return state.offset;
       },
+      GET_AVAIL_CARDS: state=>{
+        return state.availCards;
+      }
 
-      GET_ACES(state){
-        return state.aces;
-      },
-      GET_KINGS(state){
-        return state.kings;
-      },
-      GET_QUEENS(state){
-        return state.queens;
-      },
-      GET_JACKS(state){
-        return state.jacks;
-      },
-      GET_TENS(state){
-        return state.tens;
-      },
-      GET_NINES(state){
-        return state.nines;
-      },
-      GET_EIGHTS(state){
-        return state.eights;
-      },
-      GET_SEVENS(state){
-        return state.sevens;
-      },
-      GET_SIXS(state){
-        return state.sixs;
-      },
-      GET_FIVES(state){
-        return state.fives;
-      },
-      GET_FOURS(state){
-        return state.fours;
-      },
-      GET_THREES(state){
-        return state.triples;
-      },
-      GET_TWOS(state){
-        return state.deuces;
-      },
     },
     mutations: {
       CLEAR_OUTPUT_CHANCES(state){
@@ -153,15 +107,19 @@ export const store = new Vuex.Store({
       SET_CLEAR:(state,value)=>{
         state.clearInStore=value;
         //console.log('clear in commit '+state.clearInStore)
-      }
-      
       },
+      SET_AVAIL_CARDS :(state,arr)=>{
+        state.availCards=arr.slice();
+        //console.log(state.availCards+ ' avail in set');
+      },
+    },
     actions: {
       FIND_STAT(context){
         //cards on table and main player cards
         let usedcards=context.getters.GET_USED_CARDS;
         let availableCards=context.getters.GET_ALL_CARDS.filter(x=>!usedcards.includes(x));
-        //console.log(availableCards);
+        //console.log('avail '+availableCards);
+        context.commit('SET_AVAIL_CARDS',availableCards);
 
         let diap=context.getters.GET_DIAPASON;
         
@@ -476,6 +434,128 @@ export const store = new Vuex.Store({
 
       },
 
+      FIND_PLAYER_ODDS(context){
+        let availableCards=context.getters.GET_AVAIL_CARDS;
+        console.log('avail in App '+availableCards);
+        let tableCards=context.getters.GET_USED_CARDS.slice(0,5);
+        let playerCards=context.getters.GET_PLAYER_CARDS;
+        console.log(tableCards+' -table');
+        console.log(playerCards+' -playa');
+        let readyCombs=[];
+        //let drawCombs=[];
+        let pair1=0,pair2=0,set=0,quad=0,fh=0;
+
+        //pocket cards with table cards
+        let pocketTableCards=[
+          {value:playerCards[0],repeatCount:1,inFlesh:[],inStraight:[]},
+          {value:playerCards[1],repeatCount:1,inFlesh:[],inStraight:[]},
+          {value:tableCards[0],repeatCount:1,inFlesh:[],inStraight:[]},
+          {value:tableCards[1],repeatCount:1,inFlesh:[],inStraight:[]},
+          {value:tableCards[2],repeatCount:1,inFlesh:[],inStraight:[]},
+          {value:tableCards[3],repeatCount:1,inFlesh:[],inStraight:[]},
+          {value:tableCards[4],repeatCount:1,inFlesh:[],inStraight:[]}
+        ]
+        //sorting
+        let rightOrder=['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
+        pocketTableCards.sort((a,b)=>rightOrder.indexOf(a.value.charAt(0))-rightOrder.indexOf(b.value.charAt(0)));
+        console.log('after sort ')
+        for (let i = 0; i < pocketTableCards.length; i++) {
+          console.log(pocketTableCards[i].value);
+          
+        }
+        console.log('after sort '+pocketTableCards);
+
+          //check ready combs
+
+        for (let i = 0; i < pocketTableCards.length-1; i++) {
+          if (pocketTableCards[i].value!=='') {
+            
+          
+          pocketTableCards[i].inFlesh.push(pocketTableCards[i].value);
+          pocketTableCards[i].inStraight.push(pocketTableCards[i].value.charAt(0));
+
+            for (let j = i+1; j < pocketTableCards.length; j++) {
+              if (pocketTableCards[j].value!=='') {
+                pocketTableCards[i].inFlesh.push(pocketTableCards[j].value);
+                pocketTableCards[i].inStraight.push(pocketTableCards[j].value.charAt(0));
+                
+                if (pocketTableCards[i].value.charAt(0)==pocketTableCards[j].value.charAt(0)) {
+                  pocketTableCards[i].repeatCount++;
+                  pocketTableCards[j].repeatCount=-99;
+                }
+              }
+            }
+            //check on repeatable combs
+
+            if (pocketTableCards[i].repeatCount==4) {
+              quad=pocketTableCards[i].value.charAt(0);
+            } else if (pocketTableCards[i].repeatCount==3 && pair1==0 && pair2==0) {
+              set=pocketTableCards[i].value.charAt(0);
+            } else if (pocketTableCards[i].repeatCount==3 && pair2!=0) {
+              fh=pocketTableCards[i].value.charAt(0)+pair2;
+            } else if (pocketTableCards[i].repeatCount==3 && pair1!=0) {
+              fh=pocketTableCards[i].value.charAt(0)+pair1;
+            } else if (pocketTableCards[i].repeatCount==2) {
+              if (pair1==0) {
+                pair1=pocketTableCards[i].value.charAt(0);
+              } else if (pair1!=0) {
+                if (pair2!=0) {
+                  pair1=pair2;
+                  pair2= pocketTableCards[i].value.charAt(0);
+                } else {
+                  pair2=pocketTableCards[i].value.charAt(0);
+                }
+              }
+            } 
+            
+            let RoyalFlesh=0,StrFlesh=0,Flesh=0,Straight=0;
+            //check on difficult combs
+          if (pocketTableCards[i].inFlesh.length>4) {
+            pocketTableCards[i].inStraight.sort(straightSort);
+            
+            let tmpForStr=Array.from(new Set(pocketTableCards[i].inStraight));
+
+            if (checkFlesh(pocketTableCards[i].inFlesh) && checkStraight(tmpForStr) && pocketTableCards[i].inStraight[4]=='A') {
+              RoyalFlesh=1;
+            }
+            else if (checkFlesh(pocketTableCards[i].inFlesh) && checkStraight(tmpForStr)) {
+              StrFlesh=1;
+            } 
+            else if (checkFlesh(pocketTableCards[i].inFlesh)) {
+              Flesh=pocketTableCards[i].inFlesh[0];
+            } 
+            else if (checkStraight(tmpForStr)) {
+              Straight=1;
+            }
+
+          }
+          if (RoyalFlesh>0) {
+            readyCombs.push('Флеш-Рояль')
+          } else if (StrFlesh>0) {
+            readyCombs.push('Стрит-Флеш');
+          } else if (quad>0) {
+            readyCombs.push('Каре '+quad);
+          } else if (fh>0) {
+            readyCombs.push('Фулл-хаус'+fh.charAt(0)+fh.charAt(0)+fh.charAt(0)+fh.charAt(1)+fh.charAt(1));
+          } else if (Flesh>0) {
+            readyCombs.push('Флеш');
+          } else if (Straight>0) {
+            readyCombs.push('Стрит');
+          } else if (set>0) {
+            readyCombs.push('Тройка '+set);
+          } else if (pair1>0 && pair2>0) {
+            readyCombs.push('Две пары '+pair1+' и '+pair2);
+          } else if (pair1>0 ) {
+            readyCombs.push('Пара  '+pair1 );
+          } else {
+            readyCombs.push('Старшая карта '+pocketTableCards[6].value.charAt(0));
+          }
+
+          }
+        }
+      
+      },
+
       UPDATE_USED_CARDS(context,arr){
         context.commit('SET_USED_CARD',arr);
       },
@@ -539,6 +619,7 @@ export const store = new Vuex.Store({
           }
         }
       },
+
   },
   modules:{
     diapason
@@ -582,7 +663,7 @@ export const store = new Vuex.Store({
     for (let i = 0; i < tmpArr.length-4; i++) {  
       
       if (Number(tmpArr[i])+1==tmpArr[i+1] && Number(tmpArr[i])+2==tmpArr[i+2] && Number(tmpArr[i])+3==tmpArr[i+3] && Number(tmpArr[i])+4==tmpArr[i+4] ) {
-        console.log('start: '+tmpArr[i]+', '+'end: '+tmpArr[i+4]);
+        //console.log('start: '+tmpArr[i]+', '+'end: '+tmpArr[i+4]);
         k++;
         //this.StraightStart=tmpArr[i];
        // this.StraightEnd=tmpArr[i+4];
