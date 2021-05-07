@@ -383,7 +383,7 @@ export const store = new Vuex.Store({
             }
             if (Straight>0) {
               console.log('Straight from '+ StraightStart+' to ' +StraightEnd +': '+(Straight/combinations.length*100).toFixed(2));
-              chances.push((Straight/combinations.length*100).toFixed(2)+'%'+ ' Straight from '+ StraightStart+' to ' +StraightEnd);
+              chances.push((Straight/combinations.length*100).toFixed(2)+'%'+ ' Straight ');
             }
             if (Flesh>0 && Number(Flesh/combinations.length)>Number(chancesOfCombs.Flesh)) {
               console.log('Flesh : '+(Flesh/combinations.length).toFixed(2)+'%');
@@ -399,7 +399,7 @@ export const store = new Vuex.Store({
             }
             if (StraightFlesh>0) {
               console.log('StraightFlesh from '+ StraightStart+' to  ' +StraightEnd +': '+(StraightFlesh/combinations.length).toFixed(2));
-              chances.push((StraightFlesh/combinations.length*100).toFixed(2)+'%'+ ' StraightFlesh from '+ StraightStart+' to ' +StraightEnd);
+              chances.push((StraightFlesh/combinations.length*100).toFixed(2)+'% StraightFlesh ');
             }
             if (RoyalFlesh>0) {
               console.log('RoyalFlesh : '+(RoyalFlesh/combinations.length).toFixed(2));
@@ -413,71 +413,87 @@ export const store = new Vuex.Store({
         }
         
         context.commit('SET_OUTPUT_CHANCES',chances);
-        /*
-        let availKings=availableCards.filter(x => x.charAt(0)=='K');
-        let availQueens=availableCards.filter(x => x.charAt(0)=='Q');
-        let availJacks=availableCards.filter(x => x.charAt(0)=='J');
-        let availTens=availableCards.filter(x => x.charAt(0)=='10');
-        let availNines=availableCards.filter(x => x.charAt(0)=='9');
-        let availEights=availableCards.filter(x => x.charAt(0)=='8');
-        let availSevens=availableCards.filter(x => x.charAt(0)=='7');
-        let availSixs=availableCards.filter(x => x.charAt(0)=='6');
-        let availFives=availableCards.filter(x => x.charAt(0)=='5');
-
-        let availFours=availableCards.filter(x => x.charAt(0)=='4');
-        let availThrees=availableCards.filter(x => x.charAt(0)=='3');
-        let availTwos=availableCards.filter(x => x.charAt(0)=='2');
-        */
-        //let kings=new Set(context.getters.GET_KINGS);
-
-        
-
+   
       },
 
       FIND_PLAYER_ODDS(context){
         let availableCards=context.getters.GET_AVAIL_CARDS;
         console.log('avail in App '+availableCards);
+        console.log('length is '+availableCards.length);
         let tableCards=context.getters.GET_USED_CARDS.slice(0,5);
         let playerCards=context.getters.GET_PLAYER_CARDS;
-        console.log(tableCards+' -table');
-        console.log(playerCards+' -playa');
+
+        let drawCombs={
+          kicker:0,
+          pair:[],
+          twoPairs:0,
+          set:0,
+          straight:0,
+          flesh:0,
+          fullHouse:0,
+          quad:0,
+          straightFlesh:0,
+          fleshRoyal:0,
+        }
+        
+        let combinationHierarchy={
+          kicker:0,
+          pair:0,
+          twoPairs:0,
+          set:0,
+          straight:0,
+          flesh:0,
+          fullHouse:0,
+          quad:0,
+          straightFlesh:0,
+          fleshRoyal:0,
+        }
+        
+
         let readyCombs=[];
-        //let drawCombs=[];
+        
         let pair1=0,pair2=0,set=0,quad=0,fh=0;
+        let RoyalFlesh=0,StrFlesh=0,Flesh=0,Straight=0;
 
         //pocket cards with table cards
         let pocketTableCards=[
-          {value:playerCards[0],repeatCount:1,inFlesh:[],inStraight:[]},
-          {value:playerCards[1],repeatCount:1,inFlesh:[],inStraight:[]},
-          {value:tableCards[0],repeatCount:1,inFlesh:[],inStraight:[]},
-          {value:tableCards[1],repeatCount:1,inFlesh:[],inStraight:[]},
-          {value:tableCards[2],repeatCount:1,inFlesh:[],inStraight:[]},
-          {value:tableCards[3],repeatCount:1,inFlesh:[],inStraight:[]},
-          {value:tableCards[4],repeatCount:1,inFlesh:[],inStraight:[]}
+          {value:playerCards[0],
+            repeatCount:1,
+            inFlesh:[playerCards[0],playerCards[1],tableCards[0],tableCards[1],tableCards[2],tableCards[3],tableCards[4]],
+            inStraight:[playerCards[0].charAt(0),
+                        playerCards[1].charAt(0),
+                        tableCards[0].charAt(0),
+                        tableCards[1].charAt(0),
+                        tableCards[2].charAt(0),
+                        tableCards[3].charAt(0),
+                        tableCards[4].charAt(0)]},
+          {value:playerCards[1],repeatCount:1,},
+          {value:tableCards[0],repeatCount:1,},
+          {value:tableCards[1],repeatCount:1,},
+          {value:tableCards[2],repeatCount:1,},
+          {value:tableCards[3],repeatCount:1,},
+          {value:tableCards[4],repeatCount:1,}
         ]
+
+       
+        pocketTableCards[0].inFlesh=pocketTableCards[0]?.inFlesh.filter(x=> x!=="");
+        pocketTableCards[0].inStraight=pocketTableCards[0]?.inStraight.filter(x=> x!=="");
+
         //sorting
         let rightOrder=['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
         pocketTableCards.sort((a,b)=>rightOrder.indexOf(a.value.charAt(0))-rightOrder.indexOf(b.value.charAt(0)));
-        console.log('after sort ')
-        for (let i = 0; i < pocketTableCards.length; i++) {
-          console.log(pocketTableCards[i].value);
-          
-        }
-        console.log('after sort '+pocketTableCards);
+
+        
+        
+        //console.log('after sort '+pocketTableCards);
 
           //check ready combs
 
         for (let i = 0; i < pocketTableCards.length-1; i++) {
           if (pocketTableCards[i].value!=='') {
             
-          
-          pocketTableCards[i].inFlesh.push(pocketTableCards[i].value);
-          pocketTableCards[i].inStraight.push(pocketTableCards[i].value.charAt(0));
-
             for (let j = i+1; j < pocketTableCards.length; j++) {
               if (pocketTableCards[j].value!=='') {
-                pocketTableCards[i].inFlesh.push(pocketTableCards[j].value);
-                pocketTableCards[i].inStraight.push(pocketTableCards[j].value.charAt(0));
                 
                 if (pocketTableCards[i].value.charAt(0)==pocketTableCards[j].value.charAt(0)) {
                   pocketTableCards[i].repeatCount++;
@@ -486,73 +502,152 @@ export const store = new Vuex.Store({
               }
             }
             //check on repeatable combs
-
+           
             if (pocketTableCards[i].repeatCount==4) {
               quad=pocketTableCards[i].value.charAt(0);
+              combinationHierarchy.quad=5;
+
             } else if (pocketTableCards[i].repeatCount==3 && pair1==0 && pair2==0) {
               set=pocketTableCards[i].value.charAt(0);
+              combinationHierarchy.set=5;
+
             } else if (pocketTableCards[i].repeatCount==3 && pair2!=0) {
               fh=pocketTableCards[i].value.charAt(0)+pair2;
+              combinationHierarchy.fullHouse=5;
+
             } else if (pocketTableCards[i].repeatCount==3 && pair1!=0) {
               fh=pocketTableCards[i].value.charAt(0)+pair1;
+              combinationHierarchy.fullHouse=5;
+
+            } else if (pocketTableCards[i].repeatCount==2 && set!=0) {
+              fh=set+pocketTableCards[i].value.charAt(0);
+              combinationHierarchy.fullHouse=5;
+
             } else if (pocketTableCards[i].repeatCount==2) {
               if (pair1==0) {
                 pair1=pocketTableCards[i].value.charAt(0);
+                combinationHierarchy.pair=5;
               } else if (pair1!=0) {
                 if (pair2!=0) {
                   pair1=pair2;
                   pair2= pocketTableCards[i].value.charAt(0);
+                  combinationHierarchy.twoPairs=5;
                 } else {
                   pair2=pocketTableCards[i].value.charAt(0);
+                  combinationHierarchy.twoPairs=5;
                 }
               }
             } 
             
-            let RoyalFlesh=0,StrFlesh=0,Flesh=0,Straight=0;
+            
+            
             //check on difficult combs
-          if (pocketTableCards[i].inFlesh.length>4) {
+          if (pocketTableCards[i]?.inFlesh?.length>4) {
             pocketTableCards[i].inStraight.sort(straightSort);
             
             let tmpForStr=Array.from(new Set(pocketTableCards[i].inStraight));
 
-            if (checkFlesh(pocketTableCards[i].inFlesh) && checkStraight(tmpForStr) && pocketTableCards[i].inStraight[4]=='A') {
-              RoyalFlesh=1;
-            }
-            else if (checkFlesh(pocketTableCards[i].inFlesh) && checkStraight(tmpForStr)) {
-              StrFlesh=1;
+           
+            if (checkFlesh(pocketTableCards[i].inFlesh) && checkStraight(tmpForStr)) {
+              
+                  combinationHierarchy.straightFlesh=5;
+                  StrFlesh=1;
+                
             } 
             else if (checkFlesh(pocketTableCards[i].inFlesh)) {
+              combinationHierarchy.flesh=5;
               Flesh=pocketTableCards[i].inFlesh[0];
             } 
             else if (checkStraight(tmpForStr)) {
+              combinationHierarchy.Straight=5;
               Straight=1;
             }
 
           }
-          if (RoyalFlesh>0) {
-            readyCombs.push('Флеш-Рояль')
-          } else if (StrFlesh>0) {
-            readyCombs.push('Стрит-Флеш');
-          } else if (quad>0) {
-            readyCombs.push('Каре '+quad);
-          } else if (fh>0) {
-            readyCombs.push('Фулл-хаус'+fh.charAt(0)+fh.charAt(0)+fh.charAt(0)+fh.charAt(1)+fh.charAt(1));
-          } else if (Flesh>0) {
-            readyCombs.push('Флеш');
-          } else if (Straight>0) {
-            readyCombs.push('Стрит');
-          } else if (set>0) {
-            readyCombs.push('Тройка '+set);
-          } else if (pair1>0 && pair2>0) {
-            readyCombs.push('Две пары '+pair1+' и '+pair2);
-          } else if (pair1>0 ) {
-            readyCombs.push('Пара  '+pair1 );
-          } else {
-            readyCombs.push('Старшая карта '+pocketTableCards[6].value.charAt(0));
-          }
+         
 
           }
         }
+        if (RoyalFlesh!=0) {
+          readyCombs.push('Флеш-Рояль')
+        } else if (StrFlesh!=0) {
+          readyCombs.push('Стрит-Флеш');
+        } else if (quad!=0) {
+          readyCombs.push('Каре '+quad);
+        } else if (fh!=0) {
+          readyCombs.push('Фулл-хаус'+fh.charAt(0)+fh.charAt(0)+fh.charAt(0)+fh.charAt(1)+fh.charAt(1));
+        } else if (Flesh!=0) {
+          readyCombs.push('Флеш');
+        } else if (Straight!=0) {
+          readyCombs.push('Стрит');
+        } else if (set!=0) {
+          readyCombs.push('Тройка '+set);
+        } else if (pair1!=0 && pair2!=0) {
+          readyCombs.push('Две пары '+pair1+' и '+pair2);
+        } else if (pair1!=0 ) {
+          readyCombs.push('Пара  '+pair1 );
+        } 
+        console.log('ready comb is '+readyCombs);
+        console.log('hierarchy '+JSON.stringify(combinationHierarchy));
+
+        pocketTableCards=pocketTableCards.filter(x => x.value!=="");
+        for (let i = 0; i < pocketTableCards.length; i++) {
+          console.log(pocketTableCards[i]);
+          
+        }
+        ///looking for draw????
+        for (let i = 0; i < pocketTableCards.length; i++) {
+          //flesh draw
+          if (pocketTableCards[i].inFlesh?.length>4) {
+            if (checkFleshDraw(pocketTableCards[i].inFlesh)) {
+              drawCombs.flesh=2*9*(7-pocketTableCards.length);
+            }
+          }
+          //straight draw 
+          if (pocketTableCards[i].inStraight?.length>0) {
+            let tmpForStrDraw=Array.from(new Set(pocketTableCards[i].inStraight.slice()));
+            if (tmpForStrDraw.length>3) {
+              console.log(tmpForStrDraw+' tmpstrdraw');
+              
+            }
+            
+          }
+          if (pocketTableCards[i].repeatCount==1) {
+             
+            for (let j = 0; j < pocketTableCards.length; j++) {
+              //check on fh
+              //console.log('pocketTableCards[j].repeatCount '+pocketTableCards[j].repeatCount)
+              if (pocketTableCards[j].repeatCount==3 && j!=i)  {
+                
+                drawCombs.fullHouse=Number(drawCombs.fullHouse)+Number(2*3*(7-pocketTableCards.length));
+              } else if (pocketTableCards[j].repeatCount==2  && j!=i) {
+                
+                drawCombs.twoPairs+=Number(2*3*(7-pocketTableCards.length))
+              } 
+              
+            }
+          }  else if (pocketTableCards[i].repeatCount==2) {
+            let onfh=false;
+
+            for (let k = 0; k < pocketTableCards.length; k++) {
+              if (pocketTableCards[k].repeatCount==2 && k!=i) {
+                onfh=true;  
+                drawCombs.fullHouse=Number(2*4*(7-pocketTableCards.length))
+              } 
+              if (!onfh) {
+                drawCombs.set=Number(2*2*(7-pocketTableCards.length));
+              }
+            }
+   
+          } else if (pocketTableCards[i].repeatCount==3) {
+            drawCombs.quad=Number(2*(7-pocketTableCards.length));
+          }   
+        }//end for repeatable combs 
+        
+
+
+        console.log('draw '+JSON.stringify(drawCombs));
+        
       
       },
 
@@ -753,4 +848,36 @@ export const store = new Vuex.Store({
   function straightSort(a,b){
     let rightOrder=['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
     return rightOrder.indexOf(a) - rightOrder.indexOf(b);
+  }
+
+  function checkFleshDraw(arr) {
+    let pike=0,heart=0,diamond=0,club=0;
+    for (let i = 0; i < arr.length; i++) {
+      switch (arr[i].charAt(1)) {
+        case '♠':
+          pike++;
+          break;
+
+        case '♦':
+          diamond++;
+          break;
+
+        case '♥':
+          heart++;
+          break;
+
+        case '♣':
+          club++;
+          break;
+
+        default:
+          break;
+      }
+    }
+    if (club==4 || pike==4 || heart==4 || diamond==4) {
+      return true;  
+    }
+    else{
+      return false;
+    }
   }

@@ -71,9 +71,7 @@ export default {
         this.checks[i]=0;
       }
       
-      for (let i = 0; i < this.actions.length; i++) {
-        this.actions[i]=0;
-      }
+      
       
     },
     

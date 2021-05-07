@@ -30,7 +30,7 @@
   <div class="inps">
    <div v-for="(inp,index) in inputs" :key="index" class="input">
       <label> {{inp}}: </label>
-      <input :disabled="action[index]=='fold' || action[index]=='call' || action[index]===0"  class="bets" type="text" :value="betSizes[index]" >
+      <input :class="{warning:warningOn}" :disabled="action[index]=='fold' || action[index]=='call' || action[index]===0" type="number"  class="bets"  :value="betSizes[index]" >
       <select  style="height:25px" @change="choosenAction($event,index)" v-model="action[index]" >
         <option  value="0">...</option>
         <option  value="call">Call</option>
@@ -69,6 +69,7 @@ export default {
           activeInput5:false,
           BigBlind:20,
           notRaise:true,
+          
           // 1-call 2-raise 3-fold 
           action:[0,0,0,0,0,0],
           betSizes:[20,10,0,0,0,0,0],
@@ -150,6 +151,17 @@ export default {
      }
    },
    computed:{
+     warningOn() {
+       for (let index = 0; index < this.action.length; index++) {
+          
+          if (this.action[index]==2 && this.betSizes[index]<2*this.BigBlind) {
+            return true;
+          } else{
+            return false;
+          }
+       }
+       return false; 
+     }
      
    }
     
@@ -167,6 +179,11 @@ export default {
   grid-template-columns: 60px 290px 100px ;
   grid-gap: 20px;
   width:300px;
+}
+
+.warning{
+  border:0.2em solid red;
+  color: red;
 }
 
 .position{ 
