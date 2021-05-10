@@ -123,10 +123,12 @@ export const store = new Vuex.Store({
 
         let diap=context.getters.GET_DIAPASON;
         
+        
+
         let combinations=[];
         //let drawCombs=[];
-        let combReady=[];
-        let chances=[];
+        //let combReady=[];
+       // let chances=[];
       
       //only cards on table 
         let tableCards=[{value:usedcards[0],inPair:1,inFlesh:[],inStraight:[]},
@@ -136,16 +138,19 @@ export const store = new Vuex.Store({
         {value:usedcards[4],inPair:1,inFlesh:[],inStraight:[]},
         ];
 
-        let chancesOfCombs={
-          Flesh:0,
-          Straight:0,
-          StraightFlesh:0,
-        };
-        //сonsole.log(chancesOfCombs);
+       tableCards=tableCards.filter(x=>x.value!=='');  
 
+        for (let k = 0; k < tableCards.length; k++) {
+          tableCards[0].inStraight.push(tableCards[k].value.charAt(0));
+          tableCards[0].inFlesh.push(tableCards[k].value); 
+        }
+
+        
+        //сonsole.log(chancesOfCombs);
+/*
         let set=0,pair1=0,pair2=0,quad=0;
       
-
+        
        //looking table cards 
         for (let i = 0; i< 4; i++){
             if (usedcards[i]!='') {
@@ -234,7 +239,7 @@ export const store = new Vuex.Store({
  
         }
         
-       console.log(combReady);
+       console.log(combReady); */
 
         ///=========== END TABLE CHECK===========
 
@@ -304,117 +309,181 @@ export const store = new Vuex.Store({
           }
           
         }
-       // console.log('all combs '+combinations);
-       // console.log('comb len '+combinations.length);
 
-        for (let i = 0; i< tableCards.length; i++) {
-          if (tableCards[i].value!='') {
-            let pair=0,SET=0,QUAD=0,Flesh=0,RoyalFlesh=0,StraightFlesh=0,Straight=0,FullHouse=0;
-            let StraightStart=0,StraightEnd=0;
+        let possibleCombsHierarchy={
+          pair:[],
+          twopairs:0,
+          set:0,
+          straight:0,
+          flesh:0,
+          fullhouse:0,
+          quad:0,
+          straightflesh:0,
+          fleshroyal:0,
+        };
 
-            for (let j = 0; j < combinations.length; j++) {
+       //===== START new LOGIC =====
+       //let Pair=[],TwoPairs=0,Set=0,Quad=0,Flesh=0,RoyalFlesh=0,StraightFlesh=0,Straight=0,FullHouse=0;
 
-              if (tableCards[i].inPair==1 &&( (tableCards[i].value.charAt(0)==combinations[j].charAt(0) && tableCards[i].value.charAt(0)!=combinations[j].charAt(2)) 
-              || (tableCards[i].value.charAt(0)!=combinations[j].charAt(0) && tableCards[i].value.charAt(0)==combinations[j].charAt(2)) )){         
-                pair++;
-              } 
+       for (let i = 0; i < combinations.length; i++) {
+        let PairCurrent={name:'no',count:1},TwoPairsCurrent=0,SetCurrent=0,QuadCurrent=0,FleshCurrent=0,RoyalFleshCurrent=0,StraightFlesCurrent=0,StraighCurrent=0,FullHouseCurrent=0;
+        let tmpEnemyTable=[
+        {value:usedcards[0],inPair:1,
+          inFlesh:[usedcards[0],usedcards[1],usedcards[2],usedcards[3],usedcards[4],combinations[i].substr(0,2),combinations[i].substr(2,2)],
+          inStraight:[usedcards[0].charAt(0),usedcards[1].charAt(0),usedcards[2].charAt(0),usedcards[3].charAt(0),usedcards[4].charAt(0),
+          combinations[i].substr(0,1),combinations[i].substr(2,1)]
+        },
+        {value:usedcards[1],inPair:1,},
+        {value:usedcards[2],inPair:1,},
+        {value:usedcards[3],inPair:1,},
+        {value:usedcards[4],inPair:1,},
+        {value:combinations[i].substr(0,2),inPair:1},
+        {value:combinations[i].substr(2,2),inPair:1}
+        ];
 
-              if (tableCards[i].inPair==2 &&( (tableCards[i].value.charAt(0)==combinations[j].charAt(0) && tableCards[i].value.charAt(0)!=combinations[j].charAt(2)) 
-              || (tableCards[i].value.charAt(0)!=combinations[j].charAt(0) && tableCards[i].value.charAt(0)==combinations[j].charAt(2)) )){         
-                SET++;
-              }
+        tmpEnemyTable=tmpEnemyTable.filter(x=>x.value!=='');
+        tmpEnemyTable[0].inFlesh=tmpEnemyTable[0].inFlesh.filter(x=>x!=='');
+        //tmpEnemyTable[0].inStraight=Array.from(new Set(tmpEnemyTable[0].inStraight.filter(x=>x!=='')));
 
-              if (tableCards[i].inPair==1 && tableCards[i].value.charAt(0)==combinations[j].charAt(0) && tableCards[i].value.charAt(0)==combinations[j].charAt(2)){         
-                SET++;
-              } 
+        tmpEnemyTable[0].inStraight=Array.from(new Set(tmpEnemyTable[0].inStraight.sort(straightSort)));
 
-              if (tableCards[i].inPair==2 && tableCards[i].value.charAt(0)==combinations[j].charAt(0) && tableCards[i].value.charAt(0)==combinations[j].charAt(2)){         
-                QUAD++;
-              } 
+        
+        //CHECK on repeatable combs
+        
+        for (let j = 0; j < tmpEnemyTable.length; j++) {
+          for (let k = j; k < tmpEnemyTable.length; k++) {
+            if (tmpEnemyTable[j].value[0]==tmpEnemyTable[k].value[0] && k!=j) {
+              tmpEnemyTable[j].inPair++;
+              tmpEnemyTable[k].inPair=-99;
+            }
+          }
+        }
 
+     
+
+        for (let j = 0; j < tmpEnemyTable.length; j++) {
+          
+          if (tmpEnemyTable[j].inPair==4) {
+            QuadCurrent++;
+            //console.log('quad')
+          } else if (Number(tmpEnemyTable[j].inPair)==3) {
+            
+            let fh=false;
+            for (let k = 0; k < tmpEnemyTable.length; k++) {
+              if (tmpEnemyTable[k].inPair==2) {
+                fh=true;
+                FullHouseCurrent++;
+                //console.log('FHFHF');
+              }  
+            }
+            if (!fh) {      
               
+              SetCurrent++;
+              //console.log('set ' +SetCurrent);
+            }
+          } else if (tmpEnemyTable[j].inPair==2) {
+            let isSecondPair=false;
+            for (let k = 0; k < tmpEnemyTable.length; k++) {
+              if (tmpEnemyTable[k].inPair==2 && k!=j) {
+                isSecondPair=true;
+                TwoPairsCurrent++;
+              }
+            }
+            if (!isSecondPair) {
+              PairCurrent={name:tmpEnemyTable[j].value[0],count:1};
+            }
+          }
+        }
 
-              let tmpForFlesh=tableCards[i].inFlesh.slice(0);
-              tmpForFlesh.push(combinations[j].substr(0,2));
-              tmpForFlesh.push(combinations[j].substr(2,2));
+        //нужна проверка на стрит флеш
+        let checkOnSF=checkStraightFlesh(tmpEnemyTable[0].inFlesh);
+        switch (checkOnSF) {
+          case 3:
+            RoyalFleshCurrent++;
+            break;
+          case 2:
+            StraightFlesCurrent++;
+            break;
+          case 1:
+            FleshCurrent++;
+            break;
+        
+          default:
+            break;
+        }
+        //
+        if (checkStraight(tmpEnemyTable[0].inStraight)) {
+          StraighCurrent++;
+        }
+
+        
+        
+        if (RoyalFleshCurrent>0) {
+          possibleCombsHierarchy.fleshroyal++;
+        } else if (StraightFlesCurrent>0) {
+          possibleCombsHierarchy.straightflesh++;
+        } else if (QuadCurrent>0) {
+          possibleCombsHierarchy.quad++;
+        } else if (FullHouseCurrent>0) {
+          possibleCombsHierarchy.fullhouse+=FullHouseCurrent;
+        } else if (FleshCurrent>0) {
+          possibleCombsHierarchy.flesh++;
+        } else if (StraighCurrent>0) {
+          possibleCombsHierarchy.straight++;
+        } else if (SetCurrent>0) {
+          
+          possibleCombsHierarchy.set++;
+        } else if (TwoPairsCurrent>0) {
+          possibleCombsHierarchy.twopairs++;
+        } else if (PairCurrent!==0) {
+          let pairinonj=false;
+
+          if (possibleCombsHierarchy.pair.length>0) {
+               
+          for (let k = 0; k < possibleCombsHierarchy.pair.length; k++) {
+
+            if (possibleCombsHierarchy.pair[k].value==PairCurrent.name && PairCurrent.name!='no') {
+              console.log('gde blya '+JSON.stringify(possibleCombsHierarchy.pair[k]));
+              possibleCombsHierarchy.pair[k].percent++;
+              pairinonj=true;
+            }
+          }
+          if (!pairinonj && PairCurrent.name!='no') {
+            //console.log('pair');
+            possibleCombsHierarchy.pair.push({value:PairCurrent.name,percent:1});
+          }
+        } else{ if ( PairCurrent.name!='no') {
+          
+        
+          possibleCombsHierarchy.pair.push({value:PairCurrent.name,percent:1});
+        }
+        }
+          
+        } 
+       }
+       console.log('hier');
+       for (const key in possibleCombsHierarchy) {
+         if (key!='pair') {
  
-              let tmpForStr=tableCards[i].inStraight.slice(0);
-              tmpForStr.push(combinations[j].charAt(0));
-              tmpForStr.push(combinations[j].charAt(2));
-              let tmpForFullHouse=tmpForStr.slice(0);
-
-              if (tmpForStr.length>4) {
-                
-              tmpForStr=Array.from(new Set(tmpForStr));  
-              
-              tmpForStr.sort(straightSort);
-              
-              
-              if (checkFullHouse(tmpForFullHouse)) {
-                FullHouse++;
-              }
-
-              //console.log('tmp str '+tmpForStr);
-              if (checkFlesh(tmpForFlesh) && checkStraight(tmpForStr) && tmpForStr[tmpForStr.length-1]=='A') {
-                RoyalFlesh++;
-              }
-              else if (checkFlesh(tmpForFlesh) && checkStraight(tmpForStr)) {
-                StraightFlesh++;
-                
-                
-              } 
-              else if (checkFlesh(tmpForFlesh) ) {
-                Flesh++;
-              } 
-              else if (checkStraight(tmpForStr)) {
-                
-                Straight++;
-                
-              }
-            }
-            } 
-            if (pair>0) {
-              console.log('pair of '+tableCards[i].value+' percent: '+(pair/combinations.length*100).toFixed(2));
-              chances.push((pair/combinations.length*100).toFixed(2)+'%'+' Pair of '+tableCards[i].value);
-            }
-            if (SET>0) {
-              console.log('set of '+tableCards[i].value+' percent: '+(SET/combinations.length*100).toFixed(2));
-              chances.push((SET/combinations.length*100).toFixed(2)+'%'+' Set of '+tableCards[i].value);
-            }
-            if (Straight>0) {
-              console.log('Straight from '+ StraightStart+' to ' +StraightEnd +': '+(Straight/combinations.length*100).toFixed(2));
-              chances.push((Straight/combinations.length*100).toFixed(2)+'%'+ ' Straight ');
-            }
-            if (Flesh>0 && Number(Flesh/combinations.length)>Number(chancesOfCombs.Flesh)) {
-              console.log('Flesh : '+(Flesh/combinations.length).toFixed(2)+'%');
-              chancesOfCombs.Flesh=Number(Flesh/combinations.length*100).toFixed(2)
-            }
-            if (FullHouse>0) {
-              console.log('FullHouse of '+tableCards[i].value +' ' +(FullHouse/combinations.length*100).toFixed(2))
-              chances.push((FullHouse/combinations.length*100).toFixed(2)+'%'+' Full-house')
-            }
-            if (QUAD>0) {
-              console.log('quad of '+tableCards[i].value+' percent: '+(QUAD/combinations.length).toFixed(2));
-              chances.push((QUAD/combinations.length*100).toFixed(2)+'%'+' Quad of '+tableCards[i].value);
-            }
-            if (StraightFlesh>0) {
-              console.log('StraightFlesh from '+ StraightStart+' to  ' +StraightEnd +': '+(StraightFlesh/combinations.length).toFixed(2));
-              chances.push((StraightFlesh/combinations.length*100).toFixed(2)+'% StraightFlesh ');
-            }
-            if (RoyalFlesh>0) {
-              console.log('RoyalFlesh : '+(RoyalFlesh/combinations.length).toFixed(2));
-              chances.push((RoyalFlesh/combinations.length*100).toFixed(2)+'%'+' RoyalFlesh');
-            }
-
-        
+         possibleCombsHierarchy[key]=(possibleCombsHierarchy[key]/combinations.length*100).toFixed(2)+'%';
+         console.log(key+':'+possibleCombsHierarchy[key]);
         }
-        }if (chancesOfCombs.Flesh>0) {
-          chances.push(chancesOfCombs.Flesh+'%'+' Flesh');
-        }
-        
+       }
+       console.log('pair')
+       for (let ind = 0; ind < possibleCombsHierarchy.pair.length; ind++) {
+         console.log(possibleCombsHierarchy.pair[ind])
+         
+       }
+     
+
+       //===== END new logic ======
+        /*
         context.commit('SET_OUTPUT_CHANCES',chances);
+        */
    
       },
+
+
 
       FIND_PLAYER_ODDS(context){
         let availableCards=context.getters.GET_AVAIL_CARDS;
@@ -646,7 +715,7 @@ export const store = new Vuex.Store({
         
 
 
-        console.log('draw '+JSON.stringify(drawCombs));
+        //console.log('draw '+JSON.stringify(drawCombs));
         
       
       },
@@ -810,40 +879,7 @@ export const store = new Vuex.Store({
     }
   }
 
-  function checkFullHouse(arr) {
-    arr.sort(straightSort);
-    //console.log('fh arr '+arr);
-    let fhpair=false,fhset=false;
-    for (let i = 0; i < arr.length-2; i++) {
-     if (arr[i]==arr[i+2]) {
-        //console.log(arr[i]+'-i, '+arr[i+1]+' -i+2');
-         fhset=true;
-     }
-    }
-    //check any triples
-    
-    if (fhset) {
-      let i=0;
-      while (i<arr.length-2) {
-        if (arr[i]==arr[i+2]) {
-          i+=2;
-        } else if (arr[i]!=arr[i+2] && arr[i]==arr[i+1]) {
-          fhpair=true;
-        }
-        i++;
-      }
-      
-    } else {
-      return false;
-    }
-
-    if (fhset && fhpair) {
-      return true;
-    }
-    else{
-      return false;
-    }
-  }
+ 
 
   function straightSort(a,b){
     let rightOrder=['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
@@ -880,4 +916,72 @@ export const store = new Vuex.Store({
     else{
       return false;
     }
+  }
+
+
+  //return 0-nothing, 1-flesh, 2-straight flesh, 3-royal
+  function checkStraightFlesh(arr){
+    
+
+    let pike=0,heart=0,diamond=0,club=0;
+    let rightOrder=['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
+    let isFlesh=false,isStraight='';
+    for (let i = 0; i < arr.length; i++) {
+      switch (arr[i].charAt(1)) {
+        case '♠':
+          pike++;
+          break;
+
+        case '♦':
+          diamond++;
+          break;
+
+        case '♥':
+          heart++;
+          break;
+
+        case '♣':
+          club++;
+          break;
+
+        default:
+          break;
+      }
+    }
+    if (club>4 ) {
+      isFlesh=true;
+      
+      arr=arr.filter(x => x.charAt(1)!='♣')
+    } else if (heart>4) {
+      isFlesh=true;
+      arr=arr.filter(x => x.charAt(1)!='♥')
+    } else if (diamond>4) {
+      isFlesh=true;
+      arr=arr.filter(x => x.charAt(1)!='♦')
+    } else if (pike>4) {
+      isFlesh=true;
+      arr=arr.filter(x => x.charAt(1)!='♠')
+    } else{
+      return 0;
+    }
+    if (arr.length>4) {  
+    arr.sort((a,b)=>rightOrder.indexOf(a.value.charAt(0))-rightOrder.indexOf(b.value.charAt(0)));
+    for (let i = 0; i < arr.length-4; i++) {
+       if (Number(rightOrder.indexOf(arr[i].charAt(0)))+1==Number(rightOrder.indexOf(arr[i+1].charAt(0))) &&
+           Number(rightOrder.indexOf(arr[i+1].charAt(0)))+1==Number(rightOrder.indexOf(arr[i+2].charAt(0))) &&
+           Number(rightOrder.indexOf(arr[i+2].charAt(0)))+1==Number(rightOrder.indexOf(arr[i+3].charAt(0))) &&
+           Number(rightOrder.indexOf(arr[i+3].charAt(0)))+1==Number(rightOrder.indexOf(arr[i+4].charAt(0)))) 
+           {
+            isStraight=arr[i+4].charAt(0);
+            }
+    }
+  }
+    if (isFlesh && isStraight=='A') {
+      return 3;
+    } else if (isFlesh && isStraight!='') {
+      return 2;
+    } else {
+      return 1;
+    }
+
   }
