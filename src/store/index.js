@@ -19,11 +19,23 @@ export const store = new Vuex.Store({
       'A♦','K♦','Q♦','J♦','T♦','9♦','8♦','7♦','6♦','5♦','4♦','3♦','2♦','A♥','K♥','Q♥','J♥','T♥','9♥','8♥','7♥','6♥','5♥','4♥','3♥','2♥'],
       //not on table 
       availCards:[],
-      outputChances:[]
+      outputEnemy:[],
+      enemyHierarchy:{},
+      outputDraws:[],
+      outputHeroCombs:[],
     },
     getters: {
-      GET_OUTPUT_CHANCES: state=>{
-        return state.outputChances;
+      GET_ENEMY_HIERARCHY(state){
+        return state.enemyHierarchy;
+      },
+      GET_OUTPUT_DRAWS:state=>{
+        return state.outputDraws;
+      },
+      GET_OUT_HERO_COMBS:state=>{
+        return state.outputHeroCombs;
+      },
+      GET_OUTPUT_ENEMY: state=>{
+        return state.outputEnemy;
       },
       GET_ALL_CARDS: state=>{
         return state.allCards;
@@ -67,8 +79,29 @@ export const store = new Vuex.Store({
       CLEAR_OUTPUT_CHANCES(state){
         state.outputChances=[];
       },
-      SET_OUTPUT_CHANCES(state,arr){
-        state.outputChances=arr.slice(0);
+      SET_ENEMY_HIERARCHY(state,obj){
+        Object.assign(state.enemyHierarchy,obj);
+      },
+      SET_OUTPUT_DRAWS(state,arr){
+        for (let i = 0; i < arr.length; i++) {
+          let tobj={};
+          Object.assign(tobj,arr[i]);
+          state.outputDraws.push(tobj);
+        }
+      },
+      SET_OUTPUT_HERO_COMBS(state,arr){
+        for (let i = 0; i < arr.length; i++) {
+          let tobj={};
+          Object.assign(tobj,arr[i]);
+          state.outputHeroCombs.push(tobj);
+        }
+      },
+      SET_OUTPUT_ENEMY(state,arr){
+        for (let i = 0; i < arr.length; i++) {
+          let tobj={};
+          Object.assign(tobj,arr[i]);
+          state.outputEnemy.push(tobj);
+        }
       },
       SET_USED_CARD(state,arr){
         let index=arr[0];
@@ -309,18 +342,20 @@ export const store = new Vuex.Store({
           }
           
         }
-
+        
         let possibleCombsHierarchy={
           pair:[],
-          twopairs:0,
+          twoPairs:0, 
           set:0,
           straight:0,
           flesh:0,
-          fullhouse:0,
+          fullHouse:0,
           quad:0,
-          straightflesh:0,
-          fleshroyal:0,
+          straightFlesh:0,
+          fleshRoyal:0,
         };
+
+        let combsForOutput=[];
 
        //===== START new LOGIC =====
        //let Pair=[],TwoPairs=0,Set=0,Quad=0,Flesh=0,RoyalFlesh=0,StraightFlesh=0,Straight=0,FullHouse=0;
@@ -419,13 +454,13 @@ export const store = new Vuex.Store({
         
         
         if (RoyalFleshCurrent>0) {
-          possibleCombsHierarchy.fleshroyal++;
+          possibleCombsHierarchy.fleshRoyal++;
         } else if (StraightFlesCurrent>0) {
-          possibleCombsHierarchy.straightflesh++;
+          possibleCombsHierarchy.straightFlesh++;
         } else if (QuadCurrent>0) {
           possibleCombsHierarchy.quad++;
         } else if (FullHouseCurrent>0) {
-          possibleCombsHierarchy.fullhouse+=FullHouseCurrent;
+          possibleCombsHierarchy.fullHouse+=FullHouseCurrent;
         } else if (FleshCurrent>0) {
           possibleCombsHierarchy.flesh++;
         } else if (StraighCurrent>0) {
@@ -434,7 +469,7 @@ export const store = new Vuex.Store({
           
           possibleCombsHierarchy.set++;
         } else if (TwoPairsCurrent>0) {
-          possibleCombsHierarchy.twopairs++;
+          possibleCombsHierarchy.twoPairs++;
         } else if (PairCurrent!==0) {
           let pairinonj=false;
 
@@ -443,7 +478,7 @@ export const store = new Vuex.Store({
           for (let k = 0; k < possibleCombsHierarchy.pair.length; k++) {
 
             if (possibleCombsHierarchy.pair[k].value==PairCurrent.name && PairCurrent.name!='no') {
-              console.log('gde blya '+JSON.stringify(possibleCombsHierarchy.pair[k]));
+             // console.log('gde blya '+JSON.stringify(possibleCombsHierarchy.pair[k]));
               possibleCombsHierarchy.pair[k].percent++;
               pairinonj=true;
             }
@@ -453,28 +488,30 @@ export const store = new Vuex.Store({
             possibleCombsHierarchy.pair.push({value:PairCurrent.name,percent:1});
           }
         } else{ if ( PairCurrent.name!='no') {
-          
-        
+
           possibleCombsHierarchy.pair.push({value:PairCurrent.name,percent:1});
         }
         }
           
         } 
        }
-       console.log('hier');
+       //console.log('hier');
+       for (let ind = 0; ind < possibleCombsHierarchy.pair.length; ind++) {
+        //console.log(possibleCombsHierarchy.pair[ind])
+        combsForOutput.push({name:'Пара '+possibleCombsHierarchy.pair[ind].value,percent:possibleCombsHierarchy.pair[ind].percent})
+      }
        for (const key in possibleCombsHierarchy) {
          if (key!='pair') {
- 
-         possibleCombsHierarchy[key]=(possibleCombsHierarchy[key]/combinations.length*100).toFixed(2)+'%';
-         console.log(key+':'+possibleCombsHierarchy[key]);
+         possibleCombsHierarchy[key]=(possibleCombsHierarchy[key]/combinations.length*100).toFixed(2);
+         if (possibleCombsHierarchy[key]>0) {
+           combsForOutput.push({name:key,percent:possibleCombsHierarchy[key]+'%'});
+         }
+         //console.log(key+':'+possibleCombsHierarchy[key]);
         }
        }
-       console.log('pair')
-       for (let ind = 0; ind < possibleCombsHierarchy.pair.length; ind++) {
-         console.log(possibleCombsHierarchy.pair[ind])
-         
-       }
-     
+       //console.log('pair')
+       context.commit('SET_OUTPUT_ENEMY',combsForOutput);
+       context.commit('SET_ENEMY_HIERARCHY',possibleCombsHierarchy);
 
        //===== END new logic ======
         /*
@@ -486,15 +523,18 @@ export const store = new Vuex.Store({
 
 
       FIND_PLAYER_ODDS(context){
-        let availableCards=context.getters.GET_AVAIL_CARDS;
-        console.log('avail in App '+availableCards);
-        console.log('length is '+availableCards.length);
+        //let availableCards=context.getters.GET_AVAIL_CARDS;
+        //console.log('avail in App '+availableCards);
+        //console.log('length is '+availableCards.length);
         let tableCards=context.getters.GET_USED_CARDS.slice(0,5);
         let playerCards=context.getters.GET_PLAYER_CARDS;
 
+        let enemyHierarchy=context.getters.GET_ENEMY_HIERARCHY;
+        
+
         let drawCombs={
           kicker:0,
-          pair:[],
+          pair:0,
           twoPairs:0,
           set:0,
           straight:0,
@@ -558,7 +598,7 @@ export const store = new Vuex.Store({
 
           //check ready combs
 
-        for (let i = 0; i < pocketTableCards.length-1; i++) {
+        for (let i = 0; i < pocketTableCards.length; i++) {
           if (pocketTableCards[i].value!=='') {
             
             for (let j = i+1; j < pocketTableCards.length; j++) {
@@ -611,11 +651,11 @@ export const store = new Vuex.Store({
             
             
             //check on difficult combs
+           
           if (pocketTableCards[i]?.inFlesh?.length>4) {
             pocketTableCards[i].inStraight.sort(straightSort);
             
             let tmpForStr=Array.from(new Set(pocketTableCards[i].inStraight));
-
            
             if (checkFlesh(pocketTableCards[i].inFlesh) && checkStraight(tmpForStr)) {
               
@@ -627,75 +667,121 @@ export const store = new Vuex.Store({
               combinationHierarchy.flesh=5;
               Flesh=pocketTableCards[i].inFlesh[0];
             } 
+            
             else if (checkStraight(tmpForStr)) {
+              
+              
               combinationHierarchy.Straight=5;
               Straight=1;
             }
-
           }
-         
 
           }
         }
+
+        let highestComb='';
+
         if (RoyalFlesh!=0) {
-          readyCombs.push('Флеш-Рояль')
+          readyCombs.push('Флеш-Рояль');
+          highestComb='fleshRoyal';
         } else if (StrFlesh!=0) {
           readyCombs.push('Стрит-Флеш');
+          highestComb='straightFlesh';
         } else if (quad!=0) {
           readyCombs.push('Каре '+quad);
+          highestComb='quad';
         } else if (fh!=0) {
           readyCombs.push('Фулл-хаус'+fh.charAt(0)+fh.charAt(0)+fh.charAt(0)+fh.charAt(1)+fh.charAt(1));
+          highestComb='fullHouse'
         } else if (Flesh!=0) {
           readyCombs.push('Флеш');
+          highestComb='flesh'
         } else if (Straight!=0) {
           readyCombs.push('Стрит');
+          highestComb='straight'
         } else if (set!=0) {
           readyCombs.push('Тройка '+set);
+          highestComb='set'
         } else if (pair1!=0 && pair2!=0) {
           readyCombs.push('Две пары '+pair1+' и '+pair2);
+          highestComb='twoPairs';
         } else if (pair1!=0 ) {
-          readyCombs.push('Пара  '+pair1 );
+          readyCombs.push('Пара  '+pair1);
+          highestComb='pair'
         } 
-        console.log('ready comb is '+readyCombs);
-        console.log('hierarchy '+JSON.stringify(combinationHierarchy));
 
+        console.log('enemy '+JSON.stringify(enemyHierarchy));
+     //  // console.log('ready comb is '+readyCombs);
+     console.log('hierarchy '+JSON.stringify(combinationHierarchy));
+
+     
         pocketTableCards=pocketTableCards.filter(x => x.value!=="");
-        for (let i = 0; i < pocketTableCards.length; i++) {
-          console.log(pocketTableCards[i]);
-          
-        }
-        ///looking for draw????
+        
+        ///looking for draw
+        
         for (let i = 0; i < pocketTableCards.length; i++) {
           //flesh draw
           if (pocketTableCards[i].inFlesh?.length>4) {
             if (checkFleshDraw(pocketTableCards[i].inFlesh)) {
               drawCombs.flesh=2*9*(7-pocketTableCards.length);
             }
+            
+             // strflesh draw
+            let tmpForStrFleshDraw=pocketTableCards[i].inFlesh.slice();
+            let strfleshDrawResult=checkOnStrFleshDraw(tmpForStrFleshDraw);
+            if (strfleshDrawResult>0) {
+              if (RoyalFleshDrawCheck(pocketTableCards[i].inFlesh)) {
+              drawCombs.fleshRoyal=2*(7-pocketTableCards.length);          
+            }        
+              drawCombs.straightFlesh=(strfleshDrawResult)*(7-pocketTableCards.length);
+            
+            }
           }
           //straight draw 
           if (pocketTableCards[i].inStraight?.length>0) {
+       
             let tmpForStrDraw=Array.from(new Set(pocketTableCards[i].inStraight.slice()));
-            if (tmpForStrDraw.length>3) {
-              console.log(tmpForStrDraw+' tmpstrdraw');
+            if (tmpForStrDraw.length>3 && !checkStraight(tmpForStrDraw)) {
               
+              let result=checkOnStraightDraw(tmpForStrDraw);
+              if (result>0) {
+                drawCombs.straight=result*(7-pocketTableCards.length);
+              }     
             }
-            
           }
+
           if (pocketTableCards[i].repeatCount==1) {
-             
+           // let anyCombs=false;
             for (let j = 0; j < pocketTableCards.length; j++) {
+              
               //check on fh
               //console.log('pocketTableCards[j].repeatCount '+pocketTableCards[j].repeatCount)
               if (pocketTableCards[j].repeatCount==3 && j!=i)  {
-                
+                //anyCombs=true;
                 drawCombs.fullHouse=Number(drawCombs.fullHouse)+Number(2*3*(7-pocketTableCards.length));
-              } else if (pocketTableCards[j].repeatCount==2  && j!=i) {
-                
+              } else if (pocketTableCards[j].repeatCount==2  && j!=i &&  combinationHierarchy.twopairs==0) {
+                //anyCombs=true;
                 drawCombs.twoPairs+=Number(2*3*(7-pocketTableCards.length))
               } 
               
-            }
-          }  else if (pocketTableCards[i].repeatCount==2) {
+            }/*
+            if (!anyCombs && combinationHierarchy.pair==0) {
+              if ( drawCombs.pair.length>0) {
+                let PairInObj=false; 
+                for (let j = 0; j < drawCombs.pair.length; j++) {
+                  if (pocketTableCards[i].value[0]==drawCombs.pair[j].name) {
+                    drawCombs.pair[j].percent++; 
+                    PairInObj=true;
+                  }                  
+                }
+                if (!PairInObj) {
+                  drawCombs.pair.push({name:pocketTableCards[i].value[0],percent:6*(7-pocketTableCards.length)});
+                }
+              } else {
+                drawCombs.pair.push({name:pocketTableCards[i].value[0],percent:6*(7-pocketTableCards.length)});
+              }
+            } */
+          } else if (pocketTableCards[i].repeatCount==2) {
             let onfh=false;
 
             for (let k = 0; k < pocketTableCards.length; k++) {
@@ -712,10 +798,51 @@ export const store = new Vuex.Store({
             drawCombs.quad=Number(2*(7-pocketTableCards.length));
           }   
         }//end for repeatable combs 
+        if (drawCombs.twoPairs==0){
+          drawCombs.twoPairs=1.5;
+        }
         
+        let lowerEnemyCombs=[];
+        let equalComb=0;
+        let strongerEnemyCombs=[];
+        let higherFlag=false;
+        for (const key in enemyHierarchy) {
+          if (key!=highestComb && !higherFlag) {
+            if (key!='pair') {
+             
+              if (enemyHierarchy[key]!=0) {
+                
+                lowerEnemyCombs.push({name:key,percent:enemyHierarchy[key]});
+              }
+            }
+          } else if (key==highestComb) {
+            if (key!='pair') {  
+              higherFlag=true;
+              equalComb={name:key,percent:enemyHierarchy[key]};
+            }
+          } else if (key!=highestComb && higherFlag){
+            if (key!='pair') {
+              if (enemyHierarchy[key]!=0) {
+                strongerEnemyCombs.push({name:key,percent:enemyHierarchy[key]});
+              }
+            }
+          }
+        }
 
+        console.log('draw '+JSON.stringify(drawCombs));
+        console.log('lower')
+   
+        for (let i = 0; i < lowerEnemyCombs.length; i++) {
+          console.log(JSON.stringify(lowerEnemyCombs[i]));
+        }
 
-        //console.log('draw '+JSON.stringify(drawCombs));
+        console.log('equal' +JSON.stringify(equalComb));
+        
+        console.log('stronger ')
+
+        for (let i = 0; i < strongerEnemyCombs.length; i++) {
+          console.log(JSON.stringify(strongerEnemyCombs[i]));
+        }
         
       
       },
@@ -793,7 +920,7 @@ export const store = new Vuex.Store({
   function checkStraight(tmpArr) {
     
     if (tmpArr.length>4) {
- 
+      
     for (let i = 0; i < tmpArr.length; i++) {
       switch (tmpArr[i]) {
         case 'A':
@@ -832,6 +959,33 @@ export const store = new Vuex.Store({
         //this.StraightStart=tmpArr[i];
        // this.StraightEnd=tmpArr[i+4];
       }  
+    }
+    for (let i = 0; i < tmpArr.length; i++) {
+      switch (tmpArr[i]) {
+        case 14:
+          tmpArr[i]='A';
+          break;
+
+        case 13:
+          tmpArr[i]='K';
+          break;
+
+        case 12:
+          tmpArr[i]='Q';
+          break;
+
+        case 11:
+          tmpArr[i]='J';
+          break;
+
+        case 10:
+          tmpArr[i]='T';
+          break;
+          
+        default:
+          break;
+      }
+      
     }
    
   if (k>0) {
@@ -886,6 +1040,48 @@ export const store = new Vuex.Store({
     return rightOrder.indexOf(a) - rightOrder.indexOf(b);
   }
 
+  function checkOnStraightDraw(arr){
+    arr.sort(straightSort);
+    let rightOrder=['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
+    let notGutshot=false;
+    // __****__
+    for (let i = 0; i < arr.length-3; i++) {
+      if (rightOrder.indexOf(arr[i])+1 == rightOrder.indexOf(arr[i+1]) && rightOrder.indexOf(arr[i+1])+1 == rightOrder.indexOf(arr[i+2]) && 
+          rightOrder.indexOf(arr[i+2])+1 == rightOrder.indexOf(arr[i+3])) 
+          {
+            notGutshot=true;
+          }
+      
+    }
+    if (notGutshot) {
+      return 8*2;
+    } 
+    let isGutshot=false;
+    for (let i = 0; i < arr.length-3; i++) {
+      // **__**
+      if (rightOrder.indexOf(arr[i])+1 == rightOrder.indexOf(arr[i+1]) && rightOrder.indexOf(arr[i+1])+2 == rightOrder.indexOf(arr[i+2]) && 
+          rightOrder.indexOf(arr[i+2])+1 == rightOrder.indexOf(arr[i+3])) 
+          {
+            isGutshot=true;
+          } /// ***_*
+      else if (rightOrder.indexOf(arr[i])+1 == rightOrder.indexOf(arr[i+1]) && rightOrder.indexOf(arr[i+1])+1 == rightOrder.indexOf(arr[i+2]) && 
+      rightOrder.indexOf(arr[i+2])+2 == rightOrder.indexOf(arr[i+3])) 
+        {
+          isGutshot=true;
+        } // *_***
+        else if (rightOrder.indexOf(arr[i])+2 == rightOrder.indexOf(arr[i+1]) && rightOrder.indexOf(arr[i+1])+1 == rightOrder.indexOf(arr[i+2]) && 
+        rightOrder.indexOf(arr[i+2])+1 == rightOrder.indexOf(arr[i+3])) {
+          isGutshot=true;
+        }
+    }
+    if (isGutshot) {
+      return 4*2;
+    } else {
+      return 0;
+    }
+    
+  }
+
   function checkFleshDraw(arr) {
     let pike=0,heart=0,diamond=0,club=0;
     for (let i = 0; i < arr.length; i++) {
@@ -918,11 +1114,119 @@ export const store = new Vuex.Store({
     }
   }
 
+  function checkOnStrFleshDraw(arr) {
+   
+    let TempArr=arr.slice();
+    let pike=0,heart=0,diamond=0,club=0;
+    const readyStrFlesh=checkStraightFlesh(TempArr);
+    if (readyStrFlesh!=2 && readyStrFlesh!=3 && (checkFleshDraw(arr) || readyStrFlesh==1)) {
+    
+      for (let i = 0; i < arr.length; i++) {
+        switch (arr[i].charAt(1)) {
+          case '♠':
+            pike++;
+            break;
+  
+          case '♦':
+            diamond++;
+            break;
+  
+          case '♥':
+            heart++;
+            break;
+  
+          case '♣':
+            club++;
+            break;
+  
+          default:
+            break;
+        }
+      }
+     
+      if (club>3 ) {
+        arr=arr.filter(x => x.charAt(1)=='♣')
+      } else if (heart>3) {
+
+        arr=arr.filter(x => x.charAt(1)=='♥')
+      } else if (diamond>3) {
+       
+        arr=arr.filter(x => x.charAt(1)=='♦')
+      } else if (pike>3) {
+        
+        arr=arr.filter(x => x.charAt(1)=='♠')
+      } 
+     
+     arr=arr.map(x=>x.charAt(0));
+    
+      const resOfStrDraw=checkOnStraightDraw(arr);
+      
+      if (resOfStrDraw>0) {
+        return resOfStrDraw/4;
+      }
+
+    } else {
+      return 0;
+    }
+  }
+
+  function RoyalFleshDrawCheck(arr) {
+    let pike=0,heart=0,diamond=0,club=0;
+      for (let i = 0; i < arr.length; i++) {
+        switch (arr[i].charAt(1)) {
+          case '♠':
+            pike++;
+            break;
+  
+          case '♦':
+            diamond++;
+            break;
+  
+          case '♥':
+            heart++;
+            break;
+  
+          case '♣':
+            club++;
+            break;
+  
+          default:
+            break;
+        }
+      }
+     
+      if (club>3 ) {
+        arr=arr.filter(x => x.charAt(1)=='♣')
+      } else if (heart>3) {
+
+        arr=arr.filter(x => x.charAt(1)=='♥')
+      } else if (diamond>3) {
+       
+        arr=arr.filter(x => x.charAt(1)=='♦')
+      } else if (pike>3) {
+        
+        arr=arr.filter(x => x.charAt(1)=='♠')
+      } 
+     
+     arr=arr.map(x=>x.charAt(0));
+     arr.sort(straightSort);
+     arr.splice(0,arr.length-4);
+     console.log('point RF 1 '+arr);
+     if ((arr[0]=='T' && arr[1]=='J' && arr[2]=='Q' && arr[3]=='K') ||
+        (arr[0]=='T' && arr[1]=='J' && arr[2]=='Q' && arr[3]=='A')  ||
+        (arr[0]=='T' && arr[1]=='J' && arr[2]=='K' && arr[3]=='A')  ||
+        (arr[0]=='T' && arr[1]=='Q' && arr[2]=='K' && arr[3]=='A')  ||
+        (arr[0]=='J' && arr[1]=='Q' && arr[2]=='K' && arr[3]=='A')) 
+        {
+          return true;
+     } 
+     return false;
+  }
+
 
   //return 0-nothing, 1-flesh, 2-straight flesh, 3-royal
-  function checkStraightFlesh(arr){
-    
-
+  function checkStraightFlesh(array){
+    let arr=array.slice();
     let pike=0,heart=0,diamond=0,club=0;
     let rightOrder=['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
     let isFlesh=false,isStraight='';
@@ -949,23 +1253,26 @@ export const store = new Vuex.Store({
       }
     }
     if (club>4 ) {
-      isFlesh=true;
-      
-      arr=arr.filter(x => x.charAt(1)!='♣')
+      isFlesh=true;  
+      arr=arr.filter(x => x.charAt(1)=='♣')
     } else if (heart>4) {
       isFlesh=true;
-      arr=arr.filter(x => x.charAt(1)!='♥')
+      arr=arr.filter(x => x.charAt(1)=='♥')
     } else if (diamond>4) {
       isFlesh=true;
-      arr=arr.filter(x => x.charAt(1)!='♦')
+      arr=arr.filter(x => x.charAt(1)=='♦')
     } else if (pike>4) {
       isFlesh=true;
-      arr=arr.filter(x => x.charAt(1)!='♠')
+      arr=arr.filter(x => x.charAt(1)=='♠')
     } else{
       return 0;
     }
     if (arr.length>4) {  
-    arr.sort((a,b)=>rightOrder.indexOf(a.value.charAt(0))-rightOrder.indexOf(b.value.charAt(0)));
+     
+     
+
+    arr.sort((a,b)=>rightOrder.indexOf(a[0])-rightOrder.indexOf(b[0]));
+   
     for (let i = 0; i < arr.length-4; i++) {
        if (Number(rightOrder.indexOf(arr[i].charAt(0)))+1==Number(rightOrder.indexOf(arr[i+1].charAt(0))) &&
            Number(rightOrder.indexOf(arr[i+1].charAt(0)))+1==Number(rightOrder.indexOf(arr[i+2].charAt(0))) &&
