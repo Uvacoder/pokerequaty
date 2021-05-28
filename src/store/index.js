@@ -22,17 +22,32 @@ export const store = new Vuex.Store({
       outputEnemy:[],
       enemyHierarchy:{},
       outputDraws:[],
-      outputHeroCombs:[],
+      outputHeroComb:'',
+      //krasiviy output
+      strongerEnemyCombs:[],
+      equalEnemyComb:'',
+      lowerEnemyCombs:[],
+
     },
     getters: {
+      GET_STRONGER_ENEMY_COMBS:state=>{
+        return state.strongerEnemyCombs;
+      },
+      GET_LOWER_ENEMY_COMBS:state=>{
+        return state.lowerEnemyCombs;
+      },
+      GET_EQUAL_ENEMY_COMB:state=>{
+        return state.equalEnemyComb;
+      },
+
       GET_ENEMY_HIERARCHY(state){
         return state.enemyHierarchy;
       },
       GET_OUTPUT_DRAWS:state=>{
         return state.outputDraws;
       },
-      GET_OUT_HERO_COMBS:state=>{
-        return state.outputHeroCombs;
+      GET_HERO_COMBS:state=>{
+        return state.outputHeroComb;
       },
       GET_OUTPUT_ENEMY: state=>{
         return state.outputEnemy;
@@ -76,6 +91,16 @@ export const store = new Vuex.Store({
 
     },
     mutations: {
+      SET_STRONGER_ENEMY_COMBS(state,arr){
+        state.strongerEnemyCombs=arr.slice();
+      },
+      SET_EQUAL_ENEMY_COMB(state,value){
+        state.equalEnemyComb=value;
+      },
+      SET_LOWER_ENEMY_COMBS(state,arr){
+        
+        state.lowerEnemyCombs=arr.slice();
+      },
       CLEAR_OUTPUT_CHANCES(state){
         state.outputChances=[];
       },
@@ -83,18 +108,14 @@ export const store = new Vuex.Store({
         Object.assign(state.enemyHierarchy,obj);
       },
       SET_OUTPUT_DRAWS(state,arr){
-        for (let i = 0; i < arr.length; i++) {
-          let tobj={};
-          Object.assign(tobj,arr[i]);
-          state.outputDraws.push(tobj);
-        }
+        
+          state.outputDraws=arr.slice();
+       
       },
-      SET_OUTPUT_HERO_COMBS(state,arr){
-        for (let i = 0; i < arr.length; i++) {
-          let tobj={};
-          Object.assign(tobj,arr[i]);
-          state.outputHeroCombs.push(tobj);
-        }
+      SET_OUTPUT_HERO_COMB(state,value){
+     
+          state.outputHeroComb=value;
+     
       },
       SET_OUTPUT_ENEMY(state,arr){
         for (let i = 0; i < arr.length; i++) {
@@ -265,13 +286,9 @@ export const store = new Vuex.Store({
             else if (checkStraight(tmpArr)) {
               combReady.push('Staright from '+tmpArr[0] +' to '+tableCards[i].inStraight[4]);
             }
-            
+          }          
           }
-             
-          }
- 
-        }
-        
+        }   
        console.log(combReady); */
 
         ///=========== END TABLE CHECK===========
@@ -377,11 +394,15 @@ export const store = new Vuex.Store({
         ];
 
         tmpEnemyTable=tmpEnemyTable.filter(x=>x.value!=='');
+        if (tmpEnemyTable[0].inFlesh?.length>0) {
+          
+
         tmpEnemyTable[0].inFlesh=tmpEnemyTable[0].inFlesh.filter(x=>x!=='');
+      
         //tmpEnemyTable[0].inStraight=Array.from(new Set(tmpEnemyTable[0].inStraight.filter(x=>x!=='')));
 
         tmpEnemyTable[0].inStraight=Array.from(new Set(tmpEnemyTable[0].inStraight.sort(straightSort)));
-
+      }
         
         //CHECK on repeatable combs
         
@@ -394,13 +415,11 @@ export const store = new Vuex.Store({
           }
         }
 
-     
 
         for (let j = 0; j < tmpEnemyTable.length; j++) {
           
           if (tmpEnemyTable[j].inPair==4) {
             QuadCurrent++;
-            //console.log('quad')
           } else if (Number(tmpEnemyTable[j].inPair)==3) {
             
             let fh=false;
@@ -408,7 +427,6 @@ export const store = new Vuex.Store({
               if (tmpEnemyTable[k].inPair==2) {
                 fh=true;
                 FullHouseCurrent++;
-                //console.log('FHFHF');
               }  
             }
             if (!fh) {      
@@ -430,7 +448,7 @@ export const store = new Vuex.Store({
           }
         }
 
-        //нужна проверка на стрит флеш
+        //\\ проверка на стрит флеш
         let checkOnSF=checkStraightFlesh(tmpEnemyTable[0].inFlesh);
         switch (checkOnSF) {
           case 3:
@@ -450,9 +468,7 @@ export const store = new Vuex.Store({
         if (checkStraight(tmpEnemyTable[0].inStraight)) {
           StraighCurrent++;
         }
-
-        
-        
+       
         if (RoyalFleshCurrent>0) {
           possibleCombsHierarchy.fleshRoyal++;
         } else if (StraightFlesCurrent>0) {
@@ -520,8 +536,6 @@ export const store = new Vuex.Store({
    
       },
 
-
-
       FIND_PLAYER_ODDS(context){
         //let availableCards=context.getters.GET_AVAIL_CARDS;
         //console.log('avail in App '+availableCards);
@@ -558,8 +572,7 @@ export const store = new Vuex.Store({
           fleshRoyal:0,
         }
         
-
-        let readyCombs=[];
+       
         
         let pair1=0,pair2=0,set=0,quad=0,fh=0;
         let RoyalFlesh=0,StrFlesh=0,Flesh=0,Straight=0;
@@ -647,9 +660,7 @@ export const store = new Vuex.Store({
                 }
               }
             } 
-            
-            
-            
+    
             //check on difficult combs
            
           if (pocketTableCards[i]?.inFlesh?.length>4) {
@@ -680,33 +691,35 @@ export const store = new Vuex.Store({
         }
 
         let highestComb='';
+        
+        let readyCombs='';
 
         if (RoyalFlesh!=0) {
-          readyCombs.push('Флеш-Рояль');
+          readyCombs='Флеш-Рояль';
           highestComb='fleshRoyal';
         } else if (StrFlesh!=0) {
-          readyCombs.push('Стрит-Флеш');
+          readyCombs='Стрит-Флеш';
           highestComb='straightFlesh';
         } else if (quad!=0) {
-          readyCombs.push('Каре '+quad);
+          readyCombs='Каре '+quad;
           highestComb='quad';
         } else if (fh!=0) {
-          readyCombs.push('Фулл-хаус'+fh.charAt(0)+fh.charAt(0)+fh.charAt(0)+fh.charAt(1)+fh.charAt(1));
+          readyCombs='Фулл-хаус'+fh.charAt(0)+fh.charAt(0)+fh.charAt(0)+fh.charAt(1)+fh.charAt(1);
           highestComb='fullHouse'
         } else if (Flesh!=0) {
-          readyCombs.push('Флеш');
+          readyCombs='Флеш';
           highestComb='flesh'
         } else if (Straight!=0) {
-          readyCombs.push('Стрит');
+          readyCombs='Стрит';
           highestComb='straight'
         } else if (set!=0) {
-          readyCombs.push('Тройка '+set);
+          readyCombs='Тройка '+set;
           highestComb='set'
         } else if (pair1!=0 && pair2!=0) {
-          readyCombs.push('Две пары '+pair1+' и '+pair2);
+          readyCombs='Две пары '+pair1+' и '+pair2;
           highestComb='twoPairs';
         } else if (pair1!=0 ) {
-          readyCombs.push('Пара  '+pair1);
+          readyCombs='Пара  '+pair1;
           highestComb='pair'
         } 
 
@@ -799,50 +812,130 @@ export const store = new Vuex.Store({
           }   
         }//end for repeatable combs 
         if (drawCombs.twoPairs==0){
-          drawCombs.twoPairs=1.5;
+          drawCombs.twoPairs=0.72*(7-pocketTableCards.length);
         }
         
         let lowerEnemyCombs=[];
         let equalComb=0;
         let strongerEnemyCombs=[];
-        let higherFlag=false;
+        let lowerFlag=false;
+        
+
+        
+      //если нет сомбинации все добавляем в stronger
         for (const key in enemyHierarchy) {
-          if (key!=highestComb && !higherFlag) {
+          let combName='';
+          switch (key) {
+            case 'twoPairs':
+              combName='Две пары';
+              break;
+            case 'set':
+              combName='Тройка';
+              break;
+            case 'straight':
+              combName='Стрит';
+              break;
+            case 'flesh':
+              combName='Флеш';
+              break;
+            case 'fullHouse':
+              combName='Фул-хаус';
+              break;
+            case 'quad':
+              combName='Каре ';
+              break;
+            case 'straightFlesh':
+              combName='Стрит-флеш';
+              break;
+            case 'fleshRoyal':
+              combName='Флеш-роляь';
+              break;        
+            default:
+              break;
+          }
+          if (key!=highestComb && lowerFlag) {
+           
             if (key!='pair') {
              
               if (enemyHierarchy[key]!=0) {
                 
-                lowerEnemyCombs.push({name:key,percent:enemyHierarchy[key]});
+                lowerEnemyCombs.push({name:combName,percent:enemyHierarchy[key]});
               }
             }
           } else if (key==highestComb) {
             if (key!='pair') {  
-              higherFlag=true;
-              equalComb={name:key,percent:enemyHierarchy[key]};
+              lowerFlag=false;
+              equalComb={name:combName,percent:enemyHierarchy[key]};
             }
-          } else if (key!=highestComb && higherFlag){
+          } else if (key!=highestComb && !lowerFlag){
             if (key!='pair') {
+              
               if (enemyHierarchy[key]!=0) {
-                strongerEnemyCombs.push({name:key,percent:enemyHierarchy[key]});
+                
+                strongerEnemyCombs.push({name:combName,percent:enemyHierarchy[key]});
               }
             }
           }
         }
 
-        console.log('draw '+JSON.stringify(drawCombs));
-        console.log('lower')
-   
-        for (let i = 0; i < lowerEnemyCombs.length; i++) {
-          console.log(JSON.stringify(lowerEnemyCombs[i]));
+        let drawsOnOutput=[];
+      
+        for (const key in drawCombs) {
+          let combName='';
+          switch (key) {
+            case 'twoPairs':
+              combName='Две пары';
+              break;
+            case 'set':
+              combName='Тройка';
+              break;
+            case 'straight':
+              combName='Стрит';
+              break;
+            case 'flesh':
+              combName='Флеш';
+              break;
+            case 'fullHouse':
+              combName='Фул-хаус';
+              break;
+            case 'quad':
+              combName='Каре ';
+              break;
+            case 'straightFlesh':
+              combName='Стрит-флеш';
+              break;
+            case 'fleshRoyal':
+              combName='Флеш-роляь';
+              break;        
+            default:
+              break;
+          } if (drawCombs[key]!=0) {
+            
+          
+          drawsOnOutput.push({name:combName,percent:drawCombs[key]});
+        }
         }
 
-        console.log('equal' +JSON.stringify(equalComb));
-        
         console.log('stronger ')
-
         for (let i = 0; i < strongerEnemyCombs.length; i++) {
-          console.log(JSON.stringify(strongerEnemyCombs[i]));
+          console.log(JSON.stringify(strongerEnemyCombs[i]))
+          
         }
+        console.log('lower ')
+        for (let i = 0; i < lowerEnemyCombs.length; i++) {
+          console.log(JSON.stringify(lowerEnemyCombs[i]))
+          
+        }
+
+        console.log('equal '+equalComb);
+
+        
+        
+        context.commit('SET_OUTPUT_DRAWS',drawsOnOutput);
+        context.commit('SET_STRONGER_ENEMY_COMBS',strongerEnemyCombs);
+        context.commit('SET_LOWER_ENEMY_COMBS',lowerEnemyCombs);
+        context.commit('SET_EQUAL_ENEMY_COMB',equalComb);
+        context.commit('SET_OUTPUT_HERO_COMB',readyCombs);
         
       
       },
@@ -919,7 +1012,7 @@ export const store = new Vuex.Store({
 
   function checkStraight(tmpArr) {
     
-    if (tmpArr.length>4) {
+    if (tmpArr?.length>4) {
       
     for (let i = 0; i < tmpArr.length; i++) {
       switch (tmpArr[i]) {
@@ -1226,6 +1319,9 @@ export const store = new Vuex.Store({
 
   //return 0-nothing, 1-flesh, 2-straight flesh, 3-royal
   function checkStraightFlesh(array){
+  
+    if (array?.lenght>0) {
+   
     let arr=array.slice();
     let pike=0,heart=0,diamond=0,club=0;
     let rightOrder=['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
@@ -1290,5 +1386,6 @@ export const store = new Vuex.Store({
     } else {
       return 1;
     }
+  } else return 0;
 
   }

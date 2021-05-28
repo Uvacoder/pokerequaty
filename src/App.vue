@@ -11,7 +11,7 @@
     <button class="clear" @click="ClearAll" >Очистить все</button>
     <button class="find" @click="FindStat" >Расчет</button>
     
-    <ModalResults v-if="activeModal" :combs="outputChancesModal" @close="closeModal" />
+    <ModalResults class="results" v-if="activeModal" :enemyStronger="enemyStronger" :enemyLower="enemyLower" :enemyEqual="enemyEqual" :heroComb="heroComb" :heroDraws="heroDraws" @close="closeModal" />
   </div>
 </template>
 
@@ -43,7 +43,12 @@ export default {
       positions:['BB'],
       numbers: new Set(this.inputs),
       checks:[0,0,0,0,0,0],
-      outputChancesModal:[],
+      enemyCombs:[],
+      enemyStronger:[],
+      enemyEqual:'',
+      enemyLower:[],
+      heroComb:[],
+      heroDraws:[],
       activeModal:false
     }
   },
@@ -56,7 +61,21 @@ export default {
     FindStat(){
       this.$store.dispatch('FIND_STAT');
       this.$store.dispatch('FIND_PLAYER_ODDS');
-      this.outputChancesModal=this.$store.getters.GET_OUTPUT_CHANCES;
+      
+      this.heroComb=this.$store.getters.GET_HERO_COMB;
+      this.heroDraws=this.$store.getters.GET_OUTPUT_DRAWS;
+
+      this.enemyStronger=this.$store.getters.GET_STRONGER_ENEMY_COMBS;
+      
+      
+      this.enemyEqual=this.$store.getters.GET_EQUAL_ENEMY_COMB;
+      this.enemyLower=this.$store.getters.GET_LOWER_ENEMY_COMB;
+
+    //  this.enemyCombs[0]=this.$store.getters.GET_LOWER_ENEMY_COMBS;
+     // this.enemyCombs[1]=this.$store.getters.GET_EQUAL_ENEMY_COMB;
+    //  this.enemyCombs[2]=this.$store.getters.GET_STRONGER_ENEMY_COMBS;
+
+
       this.activeModal=true;
     },
     
@@ -216,6 +235,9 @@ export default {
   height: 26px;
 }
 
+.results{
+  z-index:10;
+}
 
 .table{
     grid-row-start:2;
@@ -232,4 +254,6 @@ export default {
     grid-row-start: 8;
     z-index: 5;
 }
+
+
 </style>

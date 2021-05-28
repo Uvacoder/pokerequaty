@@ -1,6 +1,6 @@
 <template>
 <div class="content">
-    <div class="blinds" style="font-size:20px;margin-top:-5px">
+    <div class="blinds" style="font-size:20px;margin-top:23px">
       Блайнды:
       <select style="height:26px;" name="" id="" v-model="BigBlind" >
         <option value="20">10/20</option>
@@ -22,25 +22,39 @@
       
     </div>
   
-  <div class="bank"> 
-  <p>Банк</p>
+  <div class="bank" > 
+    <div class="bank-1">
+    <p>Общий банк</p>
+    <input  type="text" v-model="bank">
+    </div>
+    <div class="bank-2">
+     <p>Банк круга</p>
     <input disabled type="text" v-model="bank">
+    </div>
   </div>
     
   <div class="inps">
    <div v-for="(inp,index) in inputs" :key="index" class="input">
       <label> {{inp}}: </label>
       <input :class="{warning:warningOn}" :disabled="action[index]=='fold' || action[index]=='call' || action[index]===0" type="number"  class="bets"  :value="betSizes[index]" >
-      <select  style="height:25px" @change="choosenAction($event,index)" v-model="action[index]" >
+      <select style="height:25px" @change="choosenAction($event,index)" v-model="action[index]" >
         <option  value="0">...</option>
         <option  value="call">Call</option>
         <option value="raise" >Raise</option>
         <option value="fold" >Fold</option>
       </select>
+      
+       
     </div>
+    
+
   </div>
 
-    
+  <div class="queue">
+    <div class="turns"  v-for="(turn,index) in playerTurns" :key="index+10" :class="{active:playerTurns[index]}" > 
+
+    </div>
+    </div>
 
     <div class="radio-buttons" >
       <div v-for="(pos,index) in positions" :key="index" class="position">
@@ -60,6 +74,9 @@
 <script>
 export default {
     name: 'Bets',
+     props:
+      ['inputs','positions','checks',]
+    ,
     data(){
         return{
           activeInput1:false,
@@ -69,18 +86,18 @@ export default {
           activeInput5:false,
           BigBlind:20,
           notRaise:true,
-          
+          queueOfPlayer:0,
+          wasRaise:false,
+          betCounter:0,
           // 1-call 2-raise 3-fold 
           action:[0,0,0,0,0,0],
+          playerTurns:[false,false,false,false,false,false],
           betSizes:[20,10,0,0,0,0,0],
-          bank:30
-          
-          
+          bank:30,
+
         }
     },
-    props:
-      ['inputs','positions','checks',]
-    ,
+   
     methods:{
 
       bet(index){
@@ -127,18 +144,42 @@ export default {
         this.action[index]=e.target.value;
        
         if (e.target.value=='raise') {
+          if (index!==this.positions.length-1) { 
+            this.wasRaise=true;
+            this.betCounter=0;
+          }
+        
           for (let i = 0; i <this.action.length; i++) {
             if (i!=index) {
               this.action[i]=0;
             }
           }
-        }
+        } 
+
+
+     
         this.betSizes[index]=this.bet(index);
         this.bank=Number(this.betSizes.reduce((a,b)=>Number(a)+Number(b),0));
+
+        if (index==0) {
+          if (this.wasRaise) {
+            console.log('lol');
+            this.wasRaise=false;
+            this.playerTurns[this.positions.length-1]=true;
+          }
+          this.playerTurns[index]=false;
+          
+        } else{ 
+          if (this.action[index-1]=='raise') {
+            this.playerTurns[index]=false;
+            // /this.playerTurns[index-1]=true;
+         } else{
+            this.playerTurns[index]=false;
+            this.playerTurns[index-1]=true;
+         }
+        }
       },
-      
-     
-      
+
     },
    watch:{
      BigBlind(){
@@ -148,12 +189,19 @@ export default {
        this.betSizes[0]=this.BigBlind;
        this.betSizes[1]=this.BigBlind/2;
        this.bank=Number(this.betSizes.reduce((a,b)=>Number(a)+Number(b),0)) ;
+     },
+     positions(){
+       for (let i = 0; i < this.playerTurns.length; i++) {
+         this.playerTurns[i]=false;
+         
+       }
+       this.queueOfPlayer=this.positions.length-1;
+       this.playerTurns[this.queueOfPlayer]=true;
      }
    },
    computed:{
      warningOn() {
        for (let index = 0; index < this.action.length; index++) {
-          
           if (this.action[index]==2 && this.betSizes[index]<2*this.BigBlind) {
             return true;
           } else{
@@ -161,24 +209,40 @@ export default {
           }
        }
        return false; 
-     }
-     
-   }
-    
-    
+     }    
+    }  
 }
 </script>
 
 <style scoped>
 
+.turns {
+ margin-top: 7px;
+  height: 10px;
+  width: 10px;
+  border-radius: 10px;
+ 
+}
+.active {
+  border:4px solid rgb(241, 76, 76);
+}
 
+.queue {
+   grid-column-start: 3;
+  grid-row-start: 3;
+  display:grid;
+  height: 280px;
+
+  grid-gap: 20px;
+  grid-template-rows: repeat(6,30px);
+}
 
 .content{
   display:grid;
   grid-template-rows:50px 20px 300px ;
-  grid-template-columns: 60px 290px 100px ;
+  grid-template-columns: 60px 350px 50px ;
   grid-gap: 20px;
-  width:300px;
+  width:460px;
 }
 
 .warning{
@@ -200,17 +264,34 @@ export default {
   
 }
 
+.input input  {
+  width: 150px;
+}
+
 .bank{
   grid-column-start: 2;
   grid-row-start: 1;
-  margin-left: auto;
-  margin-right: auto;
+ 
+  display: flex;
+  justify-content: space-around;
+}
+
+.bank-1{
+  margin-left: 70px;
+}
+
+.bank-1, .bank-2 {
+width: 100px;
+height: 40px;
+}
+
+.bank input {
+  width:100px;
 }
 
 .bank p{
   max-height: 20px;
-  margin-left: auto;
-  margin-right: auto;
+  
 }
 
 .inps {

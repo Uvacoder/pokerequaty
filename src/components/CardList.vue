@@ -63,10 +63,11 @@ export default {
         margin-left:auto;
         margin-right: auto;
         
+        
     }
     
     .available-cards {
-        background-color: khaki;
+        background-color: rgb(245, 243, 226);
         width:150px;
         height:275px;
         display: flex;

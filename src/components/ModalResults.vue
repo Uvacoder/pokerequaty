@@ -5,7 +5,7 @@
         <header class="modal-header">
           
             <h2>
-              Potintial combinations
+              Статистика
             </h2>
 
             <button type="button" class="btn-close btn-right" @click="close" aria-label="Close modal">
@@ -14,21 +14,38 @@
         
         </header>
         
+       
+        
         <div class="modal-body" >
-          <div class="combimation" v-for="(comb,index) in combs" :key=index>
-            <p style="display:flex;justify-content:space-around">
-              <span>{{comb.substr(0,6)}}</span>
-              <span>{{comb.substr(6,Number(comb.length)-Number(6))}}</span>
-            </p>
+          <span class="hero-label"> Шанс на усиление</span>
+            <span class="enemy-label">Kомбинации соперника</span> 
+          <div class="enemy-combs">
+            
+            <div class="enemy-lower" v-for="(elcom,index) in enemyLower" :key="index"> 
+              <span>{{elcom.name}}: {{elcom.percent}}</span>
+            </div>
+            <div v-if="enemyEqual" class="enemy-equal">
+              <span>{{enemyEqual.name }}: {{enemyEqual.percent}} %</span>
+            </div>
+            <div class="enemy-stronger" style="display:flex;justify-content:center" v-for="(escom,index) in enemyStronger" :key="index"> 
+              <span>{{escom.name}}: {{escom.percent}} %</span>
+            </div>
           </div>
+          <div class="hero-draws">
+            <div v-for="(draw,index) in heroDraws" :key="index" style="display:flex;justify-content:center">
+              <span>{{draw.name}}: {{draw.percent}} %</span>
+            </div>
+          </div>
+          
         </div>
         
         
 
+
         <footer class="modal-footer" >
           
-            <button type="button" class="btn btn-green" @click="close" aria-label="Close modal">
-              Close me!
+            <button type="button" class="btn btn-green" @click="close" aria-label="Close">
+              Закрыть
             </button>
           
         </footer>
@@ -45,7 +62,7 @@
 export default {
     name: 'ModalResults',
     props:
-      ['combs']
+      ['enemyStronger','enemyLower','enemyEqual','heroComb','heroDraws']
     ,
 
     methods:{
@@ -80,13 +97,15 @@ export default {
 
 .modal {
   width:400px;
-  min-height: 200px;
-  max-height: 5м00px;
+  min-height: 300px;
+  max-height: 500px;
   background: #ffffff;
   box-shadow: 2px 2px 20px 2px;
   overflow-x: auto;
   display: flex;
   flex-direction: column;
+  text-align: center;
+  
 }
     
 .modal-header,
@@ -96,11 +115,46 @@ export default {
   
 }
 
+.enemy-lower{
+  color:rgb(12, 182, 12);
+}
+
+.enemy-stronger {
+  color:rgb(247, 67, 67);
+}
+
+.enemy-equal {
+  color:rgb(145, 145, 38);
+}
+
 .modal-header {
   border-bottom: 1px solid #eeeeee;
   color: #4aae9b;
   justify-content: space-between;
+  
 }
+
+.enemy-combs,
+.hero-draws {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-draws {
+  grid-column-start: 1;
+  grid-row-start: 3;
+  border-right: 1px solid #eeeeee;;
+  
+}
+
+.enemy-combs {
+  grid-column-start: 2;
+  grid-row-start: 3;
+  
+  
+}
+
 
 .modal-footer {
   align-items: flex-end;
@@ -110,7 +164,12 @@ export default {
 
 .modal-body {
   position: relative;
+  min-height: 150px;
   padding: 20px 10px;
+  display: grid;
+  grid-template-columns: repeat(2,fr);
+  grid-template-rows: 15% 15% 70%;
+  
 }
 
 .btn-close {
@@ -128,6 +187,17 @@ export default {
   background: #4aae9b;
   border: 1px solid #4aae9b;
   border-radius: 2px;
+  
+}
+
+.hero-label {
+  grid-column-start: 1;
+  grid-row-start: 2;
+}
+
+.enemy-label {
+  grid-column-start: 2;
+  grid-row-start: 2;
 }
 
 .modal-fade-enter,
@@ -139,5 +209,8 @@ export default {
 .modal-fade-leave-active {
   transition: opacity 0.45s ease;
 }
+
+
+
 
 </style>
