@@ -1,6 +1,6 @@
 <template>
 <div class="content">
-    <div class="blinds" style="font-size:20px;margin-top:23px">
+    <div class="blinds" style="font-size:20px;margin-top:25px">
       Блайнды:
       <select style="height:26px;" name="" id="" v-model="BigBlind" >
         <option value="20">10/20</option>
@@ -24,12 +24,12 @@
   
   <div class="bank" > 
     <div class="bank-1">
-    <p>Общий банк</p>
-    <input  type="text" v-model="bank">
+    <p >Стартовый банк</p>
+    <input type="number"  v-model="startedBank" >
     </div>
-    <div class="bank-2">
-     <p>Банк круга</p>
-    <input disabled type="text" v-model="bank">
+    <div class="bank-2" >
+     <p >Банк круга</p>
+    <input disabled type="text" v-model="roundBank">
     </div>
   </div>
     
@@ -48,6 +48,13 @@
     </div>
     
 
+  </div>
+
+  <div class="general-bank">
+    <div class="bank-3">
+     <p>Общий банк</p>
+    <input class="bankForMethod" disabled type="text"  v-model="bank">
+    </div>
   </div>
 
   <div class="queue">
@@ -85,6 +92,7 @@ export default {
           activeInput4:false,
           activeInput5:false,
           BigBlind:20,
+          currentBet:20,
           notRaise:true,
           queueOfPlayer:0,
           wasRaise:false,
@@ -93,7 +101,10 @@ export default {
           action:[0,0,0,0,0,0],
           playerTurns:[false,false,false,false,false,false],
           betSizes:[20,10,0,0,0,0,0],
+          roundBank:30,
+          startedBank:'',
           bank:30,
+          heroToCall:0,
 
         }
     },
@@ -101,39 +112,43 @@ export default {
     methods:{
 
       bet(index){
-          var BigBlind=Number(this.$store.getters.GET_BIGBLIND);
+          this.BigBlind=Number(this.$store.getters.GET_BIGBLIND);
           var BetToCall=Number(this.$store.getters.GET_BET_TO_CALL)
-          console.log(this.$store.getters.GET_BIGBLIND);
+          //console.log('bb' +this.$store.getters.GET_BIGBLIND);
+          //console.log('bet to call '+BetToCall);
+          
+         let result=0;  
+
 
           //BB
           if (this.positions[index]=='BB' && this.action[index]=='fold') {
-            return BigBlind;
+            result=this.BigBlind;
           }
           else if (this.positions[index]=='BB' && this.action[index]=='call') {
-            console.log(BetToCall+' in bb');
-            return BetToCall;
-          }
-          else if (this.action[index]=='raise'){
-            this.$store.commit('SET_BET_TO_CALL',BigBlind+BetToCall);
-
-            return BigBlind+BetToCall;
+         
+            result=BetToCall;
           }
           
+          else if (this.action[index]=='raise'){
+            this.$store.commit('SET_BET_TO_CALL',this.BigBlind+BetToCall);
+           
+            result=this.BigBlind+BetToCall;
+          }
           else if (this.inputs.length==2 && index==1) {
-            return BigBlind/2
+            result=this.BigBlind/2
           }
           else if (this.positions[index]=='SB' && this.action[index]!='call' ) {
-            return BigBlind/2;
+           result=this.BigBlind/2;
           }
           else if (this.positions[index]=='SB' && this.action[index]=='call' ) {
-            return BetToCall;
+            result=BetToCall;
           }
           else if (this.action[index]=='call') {
-            return BetToCall;  
+            result=BetToCall;  
           } else if (this.action[index]==0){
-            return 0;
+            result=0;
           } 
-          
+          return result;
       },
       
       changePosition(e){
@@ -142,8 +157,10 @@ export default {
       choosenAction(e,index){
         
         this.action[index]=e.target.value;
-       
+
         if (e.target.value=='raise') {
+          this.currentBet=this.currentBet+this.BigBlind; //bb+bet 
+
           if (index!==this.positions.length-1) { 
             this.wasRaise=true;
             this.betCounter=0;
@@ -155,15 +172,19 @@ export default {
             }
           }
         } 
-
-
-     
         this.betSizes[index]=this.bet(index);
-        this.bank=Number(this.betSizes.reduce((a,b)=>Number(a)+Number(b),0));
+        this.roundBank=Number(this.betSizes.reduce((a,b)=>Number(a)+Number(b),0));
 
+        let heroResult=0;
+        if (this.inputs[index-1]=='Hero') {
+          heroResult=this.betSizes[index-1];
+        }
+        this.$store.commit('SET_HERO_TO_CALL',this.currentBet-heroResult)
+        //console.log('hero res ' +(this.currentBet-heroResult));
+        
         if (index==0) {
           if (this.wasRaise) {
-            console.log('lol');
+           
             this.wasRaise=false;
             this.playerTurns[this.positions.length-1]=true;
           }
@@ -178,6 +199,8 @@ export default {
             this.playerTurns[index-1]=true;
          }
         }
+        
+        
       },
 
     },
@@ -188,16 +211,30 @@ export default {
        console.log('bb in watch '+this.BigBlind);
        this.betSizes[0]=this.BigBlind;
        this.betSizes[1]=this.BigBlind/2;
-       this.bank=Number(this.betSizes.reduce((a,b)=>Number(a)+Number(b),0)) ;
+       this.roundBank=Number(this.betSizes.reduce((a,b)=>Number(a)+Number(b),0)) ;
      },
      positions(){
        for (let i = 0; i < this.playerTurns.length; i++) {
          this.playerTurns[i]=false;
-         
+         this.bank
        }
+       
        this.queueOfPlayer=this.positions.length-1;
        this.playerTurns[this.queueOfPlayer]=true;
+       console.log('bank '+this.roundBank);
+      
+      this.$store.commit('SET_BANK',this.roundBank);
+     },
+     roundBank(){
+      this.bank=Number(this.startedBank)+this.roundBank;
+      this.$store.commit('SET_BANK',this.bank);
+     },
+     startedBank(){
+       
+       this.bank=Number(this.startedBank)+this.roundBank;
+       this.$store.commit('SET_BANK',this.bank);
      }
+     
    },
    computed:{
      warningOn() {
@@ -227,6 +264,13 @@ export default {
   border:4px solid rgb(241, 76, 76);
 }
 
+.general-bank {
+  grid-column-start: 3;
+  grid-row-start: 1;
+ 
+  display: flex;
+}
+
 .queue {
    grid-column-start: 3;
   grid-row-start: 3;
@@ -240,7 +284,7 @@ export default {
 .content{
   display:grid;
   grid-template-rows:50px 20px 300px ;
-  grid-template-columns: 60px 350px 50px ;
+  grid-template-columns: 60px 340px 140px ;
   grid-gap: 20px;
   width:460px;
 }
@@ -266,6 +310,7 @@ export default {
 
 .input input  {
   width: 150px;
+   margin-bottom: 20px;
 }
 
 .bank{
@@ -277,22 +322,37 @@ export default {
 }
 
 .bank-1{
-  margin-left: 70px;
+  margin-left: 50px;
+  
 }
 
-.bank-1, .bank-2 {
-width: 100px;
+.bank-1, .bank-2 , .bank-3{
+width: 110px;
 height: 40px;
+text-align: center;
 }
 
 .bank input {
-  width:100px;
+  width:110px;
+  height: 20px;
+ 
+}
+
+.bank-3 input {
+  width:110px;
+  height: 20px;
 }
 
 .bank p{
   max-height: 20px;
+  width: 120px;
   
 }
+
+
+
+
+
 
 .inps {
   grid-column-start: 2;

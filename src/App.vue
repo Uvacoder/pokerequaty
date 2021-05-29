@@ -3,7 +3,7 @@
     <Diapason class="diap"  />
     <MainPlayer class="cards" />
    
-    <Bets class="bets" :inputs="inputs" :positions="positions" :checks="checks"  @change-pos="ChangePosition"   />
+    <Bets class="bets" :inputs="inputs" :positions="positions" :checks="checks"  @change-pos="ChangePosition"  />
     <Table class="table" @add-input="AddInput" @delete-input="DeleteInput" />
   
     
@@ -49,7 +49,8 @@ export default {
       enemyLower:[],
       heroComb:[],
       heroDraws:[],
-      activeModal:false
+      activeModal:false,
+      
     }
   },
   
@@ -67,9 +68,21 @@ export default {
 
       this.enemyStronger=this.$store.getters.GET_STRONGER_ENEMY_COMBS;
       
+
+      let maxPercent=this.heroDraws.reduce((a,b)=>a.percent>b.percent ? a.percent : b.percent);
+      console.log('max '+maxPercent);
+      for (let i = 0; i < this.heroDraws.length; i++) {
+        console.log(this.heroDraws[i].percent);
+        
+      }
+     console.log('bank '+this.bank);
       
+    
       this.enemyEqual=this.$store.getters.GET_EQUAL_ENEMY_COMB;
       this.enemyLower=this.$store.getters.GET_LOWER_ENEMY_COMB;
+
+      //const heroToCall=this.$store.getters.GET_HERO_TO_CALL;
+      
 
     //  this.enemyCombs[0]=this.$store.getters.GET_LOWER_ENEMY_COMBS;
      // this.enemyCombs[1]=this.$store.getters.GET_EQUAL_ENEMY_COMB;
@@ -176,6 +189,7 @@ export default {
 .bets{
   grid-row-start: 10;
   grid-column-start: 13;
+  margin-top:20px;
 }
 .diap{
   margin-top:50px ;

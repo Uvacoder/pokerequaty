@@ -13,7 +13,9 @@ export const store = new Vuex.Store({
       offset:0,
       deleteCheck: false,
       betToCall:20,
+      heroToCall:0,
       bigBlind:20,
+      bank:0,
       usedCards:['','','','','','',''],
       allCards:['A♠','K♠','Q♠','J♠','T♠','9♠','8♠','7♠','6♠','5♠','4♠','3♠','2♠','A♣','K♣','Q♣','J♣','T♣','9♣','8♣','7♣','6♣','5♣','4♣','3♣','2♣',
       'A♦','K♦','Q♦','J♦','T♦','9♦','8♦','7♦','6♦','5♦','4♦','3♦','2♦','A♥','K♥','Q♥','J♥','T♥','9♥','8♥','7♥','6♥','5♥','4♥','3♥','2♥'],
@@ -30,6 +32,12 @@ export const store = new Vuex.Store({
 
     },
     getters: {
+      GET_HERO_TO_CALL:state=>{ 
+        return state.heroToCall;
+      },
+      GET_BANK :state =>{
+        return state.bank;
+      },
       GET_STRONGER_ENEMY_COMBS:state=>{
         return state.strongerEnemyCombs;
       },
@@ -91,6 +99,12 @@ export const store = new Vuex.Store({
 
     },
     mutations: {
+      SET_HERO_TO_CALL:(state,value)=>{
+        state.heroToCall=value;
+      },
+      SET_BANK (state,value){
+        state.bank=value;
+      },
       SET_STRONGER_ENEMY_COMBS(state,arr){
         state.strongerEnemyCombs=arr.slice();
       },

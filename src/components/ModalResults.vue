@@ -39,7 +39,9 @@
           
         </div>
         
-        
+        <div class="bank">
+          
+        </div>
 
 
         <footer class="modal-footer" >
@@ -62,7 +64,7 @@
 export default {
     name: 'ModalResults',
     props:
-      ['enemyStronger','enemyLower','enemyEqual','heroComb','heroDraws']
+      ['enemyStronger','enemyLower','enemyEqual','heroComb','heroDraws','maxPercent','bankChances']
     ,
 
     methods:{
@@ -98,7 +100,7 @@ export default {
 .modal {
   width:400px;
   min-height: 300px;
-  max-height: 500px;
+  max-height: 600px;
   background: #ffffff;
   box-shadow: 2px 2px 20px 2px;
   overflow-x: auto;
@@ -167,7 +169,7 @@ export default {
   min-height: 150px;
   padding: 20px 10px;
   display: grid;
-  grid-template-columns: repeat(2,fr);
+  grid-template-columns: 50% 50%;
   grid-template-rows: 15% 15% 70%;
   
 }
@@ -202,7 +204,7 @@ export default {
 
 .modal-fade-enter,
 .modal-fade-leave-active {
-  opacity: 0;
+  opacity: 0.1;
 }
 
 .modal-fade-enter-active,
