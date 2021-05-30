@@ -444,7 +444,7 @@ export const store = new Vuex.Store({
               }  
             }
             if (!fh) {      
-              
+              console.log('set arr '+tmpEnemyTable[j].inFlesh);
               SetCurrent++;
               //console.log('set ' +SetCurrent);
             }
@@ -454,6 +454,7 @@ export const store = new Vuex.Store({
               if (tmpEnemyTable[k].inPair==2 && k!=j) {
                 isSecondPair=true;
                 TwoPairsCurrent++;
+                console.log('2 pair arr '+tmpEnemyTable[j].inFlesh);
               }
             }
             if (!isSecondPair) {
@@ -499,6 +500,7 @@ export const store = new Vuex.Store({
           
           possibleCombsHierarchy.set++;
         } else if (TwoPairsCurrent>0) {
+        
           possibleCombsHierarchy.twoPairs++;
         } else if (PairCurrent!==0) {
           let pairinonj=false;
@@ -525,6 +527,10 @@ export const store = new Vuex.Store({
           
         } 
        }
+       if (possibleCombsHierarchy.set==possibleCombsHierarchy.twoPairs) {
+        possibleCombsHierarchy.twoPairs+=2;
+       }
+       
        //console.log('hier');
        for (let ind = 0; ind < possibleCombsHierarchy.pair.length; ind++) {
         //console.log(possibleCombsHierarchy.pair[ind])
@@ -737,9 +743,9 @@ export const store = new Vuex.Store({
           highestComb='pair'
         } 
 
-        console.log('enemy '+JSON.stringify(enemyHierarchy));
+       // console.log('enemy '+JSON.stringify(enemyHierarchy));
      //  // console.log('ready comb is '+readyCombs);
-     console.log('hierarchy '+JSON.stringify(combinationHierarchy));
+    // console.log('hierarchy '+JSON.stringify(combinationHierarchy));
 
      
         pocketTableCards=pocketTableCards.filter(x => x.value!=="");
@@ -930,18 +936,18 @@ export const store = new Vuex.Store({
         }
         }
 
-        console.log('stronger ')
+     //   console.log('stronger ')
         for (let i = 0; i < strongerEnemyCombs.length; i++) {
           console.log(JSON.stringify(strongerEnemyCombs[i]))
           
         }
-        console.log('lower ')
+       // console.log('lower ')
         for (let i = 0; i < lowerEnemyCombs.length; i++) {
-          console.log(JSON.stringify(lowerEnemyCombs[i]))
+         // console.log(JSON.stringify(lowerEnemyCombs[i]))
           
         }
 
-        console.log('equal '+equalComb);
+       // console.log('equal '+equalComb);
 
         
         

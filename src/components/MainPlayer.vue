@@ -134,7 +134,12 @@ export default {
         border:rgb(130, 128, 235) 2px solid;
         text-align: center;
         border-radius: 5px;
-        color:blue ;
+        color:rgb(0, 132, 255) ;
+        
+    }
+
+    .card:hover {
+        box-shadow: 0 6px 8px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
     }
 
     .del{

@@ -282,11 +282,11 @@ export default {
     .player{
         height: 80px;
         width:80px;
-        border:2px solid blue;
+        border:2px solid rgb(0, 132, 255);
         border-radius: 5px;
         font-size: 55px;
         background-color: white;
-        color: blue;
+        color: rgb(0, 132, 255);
         text-align: center;
         position: relative;
         left:5%;
@@ -295,8 +295,9 @@ export default {
     }
     
     .active{
-        background-color:rgb(0, 168, 168);
+        background-color:rgb(17, 167, 167);
         color:white;
+        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
     }
     .activecards{
         width:120px;

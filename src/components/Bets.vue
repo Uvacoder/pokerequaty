@@ -42,6 +42,7 @@
         <option  value="call">Call</option>
         <option value="raise" >Raise</option>
         <option value="fold" >Fold</option>
+        
       </select>
       
        
@@ -208,7 +209,7 @@ export default {
      BigBlind(){
        this.$store.commit('SET_BIGBLIND', this.BigBlind);
        this.$store.commit('SET_BET_TO_CALL',this.BigBlind);
-       console.log('bb in watch '+this.BigBlind);
+      // console.log('bb in watch '+this.BigBlind);
        this.betSizes[0]=this.BigBlind;
        this.betSizes[1]=this.BigBlind/2;
        this.roundBank=Number(this.betSizes.reduce((a,b)=>Number(a)+Number(b),0)) ;
@@ -221,7 +222,7 @@ export default {
        
        this.queueOfPlayer=this.positions.length-1;
        this.playerTurns[this.queueOfPlayer]=true;
-       console.log('bank '+this.roundBank);
+       // console.log('bank '+this.roundBank);
       
       this.$store.commit('SET_BANK',this.roundBank);
      },

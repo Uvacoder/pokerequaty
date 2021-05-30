@@ -201,9 +201,8 @@
     <div class="grid-element " :class="{'in-diapason':value>21}">22</div>
     </div>
 
-    <button class="ten-percent"  >10%</button>
-    <button class="seventeen-percent">16%</button>
-    <button class="zero" @click="value=2" >Очистить</button>
+    
+    <button class="zero" @click="value=2" >ОЧИСТИТЬ</button>
     
     <input @change="changeDiapason" class="slider" type="range" min="2" max="50" step="2" v-model="value">
     <p class="slider-value">> {{value}}%</p>
@@ -293,7 +292,20 @@ export default {
 .zero{
     grid-column-start: 2;
     grid-row-start: 7;
+    font-size: 12px;  
+    font-weight: 600;
     
+    border-radius: 5px;
+    color: rgb(0, 132, 255);
+    background-color: white;  
+    border:2px solid rgb(0, 132, 255);
+}
+
+.zero:hover{
+    color: white;
+    background-color: rgb(0, 132, 255);  
+    
+    box-shadow: 0 6px 8px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
 }
 
 .suited{

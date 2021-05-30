@@ -1,5 +1,17 @@
 <template>
+<div class="all-conten">
+  <header class="app-header" >
+      
+    <button class="lk">
+    
+      <unicon name="user-circle" fill="white"  ></unicon>
+      <div style="font-size:15px;vertical-align:center"> Авторизация</div>
+    
+     </button>
+     
+    </header>
   <div id="app" class="main-content">
+    
     <Diapason class="diap"  />
     <MainPlayer class="cards" />
    
@@ -11,7 +23,10 @@
     <button class="clear" @click="ClearAll" >Очистить все</button>
     <button class="find" @click="FindStat" >Расчет</button>
     
-    <ModalResults class="results" v-if="activeModal" :enemyStronger="enemyStronger" :enemyLower="enemyLower" :enemyEqual="enemyEqual" :heroComb="heroComb" :heroDraws="heroDraws" @close="closeModal" />
+    
+    <ModalResults class="results" v-if="activeModal" :enemyStronger="enemyStronger" :enemyLower="enemyLower"
+     :enemyEqual="enemyEqual" :heroComb="heroComb" :heroDraws="heroDraws" @close="closeModal" :bankChances="bankChances" :maxPercent="maxPercent" />
+  </div>
   </div>
 </template>
 
@@ -24,8 +39,13 @@ import Table from './components/Table.vue'
 
 
 
+//import axios from 'axios'
+
+
+
 
 export default {
+  
   name: 'App',
   components: {
     MainPlayer,
@@ -36,8 +56,16 @@ export default {
        
   },
   
+   mounted(){
+     //axios.get(this.url)
+     // .then(response => {
+     //   console.log(response)
+     // })
+   },
+ 
   data(){
     return {
+      info:null,
       clear:false,
       inputs:['Hero'],
       positions:['BB'],
@@ -50,7 +78,10 @@ export default {
       heroComb:[],
       heroDraws:[],
       activeModal:false,
-      
+      bankChances:0,
+      maxPercent:0,
+      url:'http://localhost:3000',
+      privatbank:'https://api.privatbank.ua/p24api/exchange_rates?json&date=01.12.2014'
     }
   },
   
@@ -69,17 +100,21 @@ export default {
       this.enemyStronger=this.$store.getters.GET_STRONGER_ENEMY_COMBS;
       
 
-      let maxPercent=this.heroDraws.reduce((a,b)=>a.percent>b.percent ? a.percent : b.percent);
-      console.log('max '+maxPercent);
-      for (let i = 0; i < this.heroDraws.length; i++) {
-        console.log(this.heroDraws[i].percent);
-        
-      }
-     console.log('bank '+this.bank);
+      this.maxPercent=this.heroDraws.reduce((a,b)=>a.percent>b.percent ? a.percent : b.percent);
       
+      const bank=this.$store.getters.GET_BANK;
+      const playerBet=this.$store.getters.GET_HERO_TO_CALL;
+
+      this.bankChances=Number(playerBet/bank*100).toFixed(2);
+      
+
     
       this.enemyEqual=this.$store.getters.GET_EQUAL_ENEMY_COMB;
       this.enemyLower=this.$store.getters.GET_LOWER_ENEMY_COMB;
+
+     
+      
+    
 
       //const heroToCall=this.$store.getters.GET_HERO_TO_CALL;
       
@@ -102,9 +137,7 @@ export default {
       for (let i = 0; i < this.checks.length; i++) {
         this.checks[i]=0;
       }
-      
-      
-      
+
     },
     
     
@@ -186,6 +219,24 @@ export default {
 </script>
 
 <style>
+.app-header{
+  background-color:royalblue;
+  height: 40px;
+  display: flex;
+  
+  
+  color:white;
+  
+  width: 100%;
+  margin-top: -10px;
+ 
+}
+
+header div{
+  display: flex;
+  
+}
+
 .bets{
   grid-row-start: 10;
   grid-column-start: 13;
@@ -206,6 +257,7 @@ export default {
     width:100px;
     margin-top:16px;
     height:30px;
+   
 }
 
 .find{
@@ -214,6 +266,40 @@ export default {
     width:100px;
     margin-top:16px;
     height:30px;
+    
+}
+
+.clear, 
+.find {
+  border-radius: 5px;
+  border:2px solid rgb(0, 132, 255);
+  -webkit-transition-duration: 0.1s; /* Safari */
+  transition-duration: 0.1s;
+  background-color: white;
+  color:rgb(0, 132, 255);
+}
+
+.clear:hover,
+.find:hover {
+  background-color: rgb(0, 132, 255); /* Green */
+  color: white;
+  box-shadow: 0 6px 8px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+.lk {
+  background-color: transparent;
+  color:white;
+  border:0px;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-width: 140px;
+}
+
+.lk:hover{
+  background-color: rgb(132, 158, 230);
 }
 
 .bets{
@@ -234,8 +320,9 @@ export default {
 .main-content{
   display:grid;
   grid-template-columns: repeat(25,50px);
-  grid-template-rows:repeat(20,50px);
+  grid-template-rows:repeat(21,50px);
   grid-gap:10px;
+  margin-top:20px;
 }
 
 .inp{

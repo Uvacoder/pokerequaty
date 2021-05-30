@@ -39,8 +39,18 @@
           
         </div>
         
-        <div class="bank">
-          
+        <div v-if="bankChances>0" class="bank">
+          <div class="bank-chances">
+            <span class="chances">Шансы банка</span>
+            <span  >{{bankChances}} %</span>
+
+          </div>
+
+          <div class="equaty">
+          <span class="chances">Ожидаемая прибыль</span>
+          <span v-if="bankChances>maxPercent" style="color:red">{{bankChances-maxPercent}}</span>
+          <span v-if="bankChances<=maxPercent" style="color:#4aae9b">{{maxPercent-bankChances}}</span>
+          </div>
         </div>
 
 
@@ -77,6 +87,13 @@ export default {
 </script>
 
 <style scoped>
+
+.bank {
+  display:flex;
+  justify-content: space-around;
+  border-top: 1px solid #eeeeee;
+  min-height: 50px;
+}
 
 .btn {
   padding: 8px 16px;
@@ -146,7 +163,10 @@ export default {
 .hero-draws {
   grid-column-start: 1;
   grid-row-start: 3;
-  border-right: 1px solid #eeeeee;;
+  border-right: 1px solid #eeeeee;
+  font-size: 17px;
+  font-weight: 600;
+  color: #319785;
   
 }
 
@@ -169,7 +189,7 @@ export default {
   min-height: 150px;
   padding: 20px 10px;
   display: grid;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: 50% 50%  ;
   grid-template-rows: 15% 15% 70%;
   
 }

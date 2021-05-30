@@ -246,6 +246,7 @@ export default {
         grid-gap: 5px;
     }
     
+    
     .del{
         
         width:60px;
