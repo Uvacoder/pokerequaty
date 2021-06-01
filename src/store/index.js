@@ -444,7 +444,7 @@ export const store = new Vuex.Store({
               }  
             }
             if (!fh) {      
-              console.log('set arr '+tmpEnemyTable[j].inFlesh);
+              //console.log('set arr '+tmpEnemyTable[j].inFlesh);
               SetCurrent++;
               //console.log('set ' +SetCurrent);
             }
@@ -454,7 +454,7 @@ export const store = new Vuex.Store({
               if (tmpEnemyTable[k].inPair==2 && k!=j) {
                 isSecondPair=true;
                 TwoPairsCurrent++;
-                console.log('2 pair arr '+tmpEnemyTable[j].inFlesh);
+                //console.log('2 pair arr '+tmpEnemyTable[j].inFlesh);
               }
             }
             if (!isSecondPair) {
@@ -465,6 +465,7 @@ export const store = new Vuex.Store({
 
         //\\ проверка на стрит флеш
         let checkOnSF=checkStraightFlesh(tmpEnemyTable[0].inFlesh);
+        console.log(checkOnSF+' -checkresult')
         switch (checkOnSF) {
           case 3:
             RoyalFleshCurrent++;
@@ -549,6 +550,7 @@ export const store = new Vuex.Store({
        context.commit('SET_OUTPUT_ENEMY',combsForOutput);
        context.commit('SET_ENEMY_HIERARCHY',possibleCombsHierarchy);
 
+      
        //===== END new logic ======
         /*
         context.commit('SET_OUTPUT_CHANCES',chances);
@@ -938,7 +940,7 @@ export const store = new Vuex.Store({
 
      //   console.log('stronger ')
         for (let i = 0; i < strongerEnemyCombs.length; i++) {
-          console.log(JSON.stringify(strongerEnemyCombs[i]))
+          //console.log(JSON.stringify(strongerEnemyCombs[i]))
           
         }
        // console.log('lower ')
@@ -1339,9 +1341,9 @@ export const store = new Vuex.Store({
 
   //return 0-nothing, 1-flesh, 2-straight flesh, 3-royal
   function checkStraightFlesh(array){
-  
-    if (array?.lenght>0) {
    
+    if (array.length>0) {
+      
     let arr=array.slice();
     let pike=0,heart=0,diamond=0,club=0;
     let rightOrder=['2','3','4','5','6','7','8','9','T','J','Q','K','A'];

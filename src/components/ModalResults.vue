@@ -48,8 +48,8 @@
 
           <div class="equaty">
           <span class="chances">Ожидаемая прибыль</span>
-          <span v-if="bankChances>maxPercent" style="color:red">{{bankChances-maxPercent}}</span>
-          <span v-if="bankChances<=maxPercent" style="color:#4aae9b">{{maxPercent-bankChances}}</span>
+          <span v-if="bankChances>maxPercent" style="color:red">-   {{(bankChances-maxPercent).toFixed(2)}}%</span>
+          <span v-if="bankChances<=maxPercent" style="color:#4aae9b">{{(maxPercent-bankChances).toFixed(2)}}%</span>
           </div>
         </div>
 
@@ -87,6 +87,11 @@ export default {
 </script>
 
 <style scoped>
+.bank-chances,
+.equaty {
+  display: flex;
+  flex-direction: column;
+}
 
 .bank {
   display:flex;
@@ -148,7 +153,7 @@ export default {
 
 .modal-header {
   border-bottom: 1px solid #eeeeee;
-  color: #4aae9b;
+  color: royalblue;
   justify-content: space-between;
   
 }
@@ -200,16 +205,22 @@ export default {
   padding: 20px;
   cursor: pointer;
   font-weight: bold;
-  color: #4aae9b;
+  color: royalblue;
   background: transparent;
 }
 
 .btn {
-  color: white;
-  background: #4aae9b;
-  border: 1px solid #4aae9b;
-  border-radius: 2px;
+   background: white;
+  color: royalblue;
+  border: 2px solid royalblue;
+  border-radius: 4px;
   
+}
+
+.btn:hover {
+color: white;
+  background: royalblue;
+   
 }
 
 .hero-label {

@@ -181,8 +181,7 @@ export default {
         grid-template-columns: repeat(10,60px);
         grid-template-rows: 145px 60px 30px 25px 150px;
         background: url('../images/Screen1.jpg') no-repeat center center;
-        grid-gap:10px;
-            }
+        grid-gap:10px; }
 
     
     

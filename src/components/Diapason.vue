@@ -259,7 +259,7 @@ export default {
     grid-gap: 10px;
 }
 .grid-element{
-      border:2px solid #57b5f0;
+      border:2px solid #48b1f1;
       height:35px;
       width:35px;
       color:#000000;
@@ -291,7 +291,7 @@ export default {
 
 .zero{
     grid-column-start: 2;
-    grid-row-start: 7;
+    grid-row-start: 9;
     font-size: 12px;  
     font-weight: 600;
     

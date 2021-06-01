@@ -1,8 +1,9 @@
 <template>
-<div class="all-conten">
+<div class="all-conten" id="app">
+  
   <header class="app-header" >
       
-    <button class="lk">
+    <button class="lk" @click="activeAutorization=true">
     
       <unicon name="user-circle" fill="white"  ></unicon>
       <div style="font-size:15px;vertical-align:center"> Авторизация</div>
@@ -10,33 +11,40 @@
      </button>
      
     </header>
-  <div id="app" class="main-content">
+  
+  
+
+  <div  class="main-content">
     
     <Diapason class="diap"  />
     <MainPlayer class="cards" />
    
     <Bets class="bets" :inputs="inputs" :positions="positions" :checks="checks"  @change-pos="ChangePosition"  />
     <Table class="table" @add-input="AddInput" @delete-input="DeleteInput" />
-  
+
+    
     
 
     <button class="clear" @click="ClearAll" >Очистить все</button>
     <button class="find" @click="FindStat" >Расчет</button>
     
-    
+    <Autorization class="autorization" v-if="activeAutorization" @close="closeModal" />
     <ModalResults class="results" v-if="activeModal" :enemyStronger="enemyStronger" :enemyLower="enemyLower"
      :enemyEqual="enemyEqual" :heroComb="heroComb" :heroDraws="heroDraws" @close="closeModal" :bankChances="bankChances" :maxPercent="maxPercent" />
   </div>
+  <History @turnOnAuto="turningOnAvto" class="history-content" />
   </div>
 </template>
 
 <script>
+
+import Autorization from './components/Autorization.vue'
 import Bets from './components/Bets.vue'
 import Diapason from './components/Diapason.vue'
 import MainPlayer from './components/MainPlayer.vue'
 import ModalResults from './components/ModalResults.vue'
 import Table from './components/Table.vue'
-
+import History from './components/History.vue'
 
 
 //import axios from 'axios'
@@ -53,6 +61,9 @@ export default {
     Table,
     Bets,
     ModalResults,
+    Autorization,
+    History
+    
        
   },
   
@@ -78,6 +89,7 @@ export default {
       heroComb:[],
       heroDraws:[],
       activeModal:false,
+      activeAutorization:false,
       bankChances:0,
       maxPercent:0,
       url:'http://localhost:3000',
@@ -87,8 +99,12 @@ export default {
   
 
   methods :{
+    turningOnAvto(){
+      this.activeAutorization=true; 
+    },
     closeModal(){
       this.activeModal=false;
+      this.activeAutorization=false
     },
     FindStat(){
       this.$store.dispatch('FIND_STAT');
@@ -100,8 +116,8 @@ export default {
       this.enemyStronger=this.$store.getters.GET_STRONGER_ENEMY_COMBS;
       
 
-      this.maxPercent=this.heroDraws.reduce((a,b)=>a.percent>b.percent ? a.percent : b.percent);
-      
+      this.maxPercent=this.heroDraws.reduce((a,b)=>Number(a.percent)>Number(b.percent) ? a.percent : b.percent);
+      console.log('max '+this.maxPercent);
       const bank=this.$store.getters.GET_BANK;
       const playerBet=this.$store.getters.GET_HERO_TO_CALL;
 
@@ -219,11 +235,25 @@ export default {
 </script>
 
 <style>
+
+.all-conten {
+  display:flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+
+
+.autorization{
+  z-index:10;
+}
+
+
+
 .app-header{
   background-color:royalblue;
   height: 40px;
   display: flex;
-  
   
   color:white;
   
@@ -267,6 +297,23 @@ header div{
     margin-top:16px;
     height:30px;
     
+}
+
+.history-content{
+  width:19.89%;
+  border-left: 1px solid #c2c0c0;
+  
+}
+
+
+.main-content{
+  display:grid;
+  grid-template-columns: repeat(25,50px);
+  grid-template-rows:repeat(21,50px);
+  grid-gap:10px;
+  margin-top:20px;
+  width:80%;
+
 }
 
 .clear, 
@@ -317,13 +364,10 @@ header div{
 
 }
 
-.main-content{
-  display:grid;
-  grid-template-columns: repeat(25,50px);
-  grid-template-rows:repeat(21,50px);
-  grid-gap:10px;
-  margin-top:20px;
+button:hover{
+  cursor: pointer;
 }
+
 
 .inp{
   grid-column-start: 12;
