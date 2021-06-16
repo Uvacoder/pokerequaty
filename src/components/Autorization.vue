@@ -7,20 +7,18 @@
             <h2 style="margin-left:auto;margin-right:auto">
               Авторизация
             </h2>
-
-            
-        
+     
         </header>
-        
-       
-        
+
         <div class="modal-body" >
-         <input class="login" type="text" placeholder="Адрес электронной почты">
-         <input class="password" type="password" placeholder="Пароль">
-         <button class="enter">Вход</button>
+         <input class="login" type="text" placeholder="Адрес электронной почты" v-model="email">
+         <span v-show="incorEm>0" class="bad-data">Такого пользователя не существует</span>
+         <input class="password" type="password" placeholder="Пароль" v-model="password">
+         <span v-show="incorPas>0" class="bad-data">Неверный пароль</span>
+         <button class="enter" @click="logIn">Вход</button>
         </div>
         
-        <button class="register">Регистрация</button>
+        <button class="register" @click="registration">Регистрация</button>
 
         <footer class="modal-footer" >
           
@@ -36,16 +34,51 @@
 
 <script>
 export default {
-
+props:['incorrectData'],
+data(){
+  return {
+    email:'',
+    password:'',
+    incorEm:0,
+    incorPas:0,
+  }
+},
 methods:{
     close() {
         this.$emit('close');
     },
-}
+    registration() {
+        this.$emit('open-register');
+    },
+    logIn(){
+      this.incorEm=0;
+      this.incorPas=0;
+      //console.log(this.email+' '+this.password);
+      //let pass=this.password;
+     // let email=this.email;
+      this.$emit('log-in',[this.email,this.password]);
+      this.incorEm=this.incorrectData[0];
+      this.incorPas=this.incorrectData[1];
+      //console.log('coorect 0 '+this.incorrectData[0]+' correct 1 '+this.incorrectData[1])
+    }
+},
+
+computed:{
+  submitEnter(){
+    console.log(1);
+    return this.password!=='' && this.email!==''
+  }
+},
+
 }
 </script>
 
 <style>
+
+.bad-data {
+  color:red;
+  font-size: 12px;
+}
 .btn {
   padding: 8px 16px;
   border-radius: 3px;
@@ -83,6 +116,7 @@ methods:{
   padding: 15px;
   display: flex;
   max-height: 70px;
+  
   
 }
 
@@ -186,12 +220,12 @@ color: white;
 
 .modal-fade-enter,
 .modal-fade-leave-active {
-  opacity: 0.1;
+  opacity: 0;
 }
 
 .modal-fade-enter-active,
 .modal-fade-leave-active {
-  transition: opacity 0.45s ease;
+  transition: opacity 0.05s ease;
 }
 
 </style>

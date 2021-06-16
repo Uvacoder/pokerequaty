@@ -3,13 +3,18 @@
   
   <header class="app-header" >
       
-    <button class="lk" @click="activeAutorization=true">
+    <button v-if="ID<0" class="lk" @click="activeAutorization=true">
     
       <unicon name="user-circle" fill="white"  ></unicon>
       <div style="font-size:15px;vertical-align:center"> Авторизация</div>
     
      </button>
      
+     <button v-if="ID>=0" class="lk" @click="logOut">
+      
+      <unicon name="user-circle" fill="white"  ></unicon>
+      <div style="font-size:15px;vertical-align:center" > Выход</div>
+      </button>
     </header>
   
   
@@ -28,11 +33,13 @@
     <button class="clear" @click="ClearAll" >Очистить все</button>
     <button class="find" @click="FindStat" >Расчет</button>
     
-    <Autorization class="autorization" v-if="activeAutorization" @close="closeModal" />
+    <Autorization class="autorization" :incorrectData="incorrectData" v-if="activeAutorization"  @log-in="logIn"  @open-register="openRegister" @close="closeModal" />
+    
+    <Registr class="reg" v-if="activeRegister" @close="closeRegister" />
     <ModalResults class="results" v-if="activeModal" :enemyStronger="enemyStronger" :enemyLower="enemyLower"
-     :enemyEqual="enemyEqual" :heroComb="heroComb" :heroDraws="heroDraws" @close="closeModal" :bankChances="bankChances" :maxPercent="maxPercent" />
+     :enemyEqual="enemyEqual" :heroComb="heroComb" :heroDraws="heroDraws" :ID="ID" @close="closeModal" :bankChances="bankChances" :maxPercent="maxPercent" />
   </div>
-  <History @turnOnAuto="turningOnAvto" class="history-content" />
+  <History :ID="ID" @turnOnAuto="turningOnAvto" class="history-content" />
   </div>
 </template>
 
@@ -45,6 +52,7 @@ import MainPlayer from './components/MainPlayer.vue'
 import ModalResults from './components/ModalResults.vue'
 import Table from './components/Table.vue'
 import History from './components/History.vue'
+import Registr from './components/Registr.vue'
 
 
 //import axios from 'axios'
@@ -62,7 +70,8 @@ export default {
     Bets,
     ModalResults,
     Autorization,
-    History
+    History,
+    Registr
     
        
   },
@@ -90,21 +99,34 @@ export default {
       heroDraws:[],
       activeModal:false,
       activeAutorization:false,
+      activeRegister:false,
       bankChances:0,
       maxPercent:0,
       url:'http://localhost:3000',
-      privatbank:'https://api.privatbank.ua/p24api/exchange_rates?json&date=01.12.2014'
+      ID:-1,
+      name:'',
+      incorrectData:[0,0],
     }
   },
   
 
   methods :{
+   
     turningOnAvto(){
       this.activeAutorization=true; 
     },
     closeModal(){
       this.activeModal=false;
-      this.activeAutorization=false
+      this.activeAutorization=false;
+    },
+    openRegister(){
+      this.activeAutorization=false;
+      this.activeRegister=true;
+      
+    },
+    closeRegister() {
+      this.activeRegister=false;
+      //this.activeAutorization=true;
     },
     FindStat(){
       this.$store.dispatch('FIND_STAT');
@@ -207,6 +229,41 @@ export default {
       this.$store.commit('SET_OFFSET',0);
       this.checks[this.inputs.length-1]=1;
     },
+     logOut(){
+       this.ID=-1;
+       this.incorrectData[0]=0;
+       this.incorrectData[1]=0;
+    },
+    logIn(arr){
+      this.incorrectData[0]=0;
+       this.incorrectData[1]=0;
+      const email=arr[0];
+      const password=arr[1];
+      const users=this.$store.getters.GET_USERS;
+      let isExist=false;
+      
+      for (let i = 0; i < users.length; i++) {
+        if (users[i].email==email) {
+          isExist=true;
+          if (users[i].password==password){
+            this.ID=i;
+            this.name=email;
+            this.activeAutorization=false;
+            this.incorrectData[0]=0;
+            this.incorrectData[1]=0;
+          } else {
+            
+            this.incorrectData[1]=11;
+          }
+        }
+      }
+
+      
+      if (!isExist) {
+        this.incorrectData[0]=11;
+      }
+      console.log('incoorect email '+this.incorrectData[0]+' incorrect passs '+this.incorrectData[1])
+    },
     
 
     DeleteInput(index){
@@ -244,7 +301,8 @@ export default {
 
 
 
-.autorization{
+.autorization,
+.reg {
   z-index:10;
 }
 

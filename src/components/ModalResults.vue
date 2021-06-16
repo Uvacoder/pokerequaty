@@ -74,7 +74,7 @@
 export default {
     name: 'ModalResults',
     props:
-      ['enemyStronger','enemyLower','enemyEqual','heroComb','heroDraws','maxPercent','bankChances']
+      ['enemyStronger','enemyLower','enemyEqual','heroComb','heroDraws','maxPercent','bankChances',"ID"]
     ,
 
     methods:{

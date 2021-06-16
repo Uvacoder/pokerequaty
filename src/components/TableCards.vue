@@ -103,8 +103,8 @@ export default {
             
         },
         ChooseCard(arr){
-            var value=arr[0];
-            var index=arr[1];
+            let value=arr[0];
+            let index=arr[1];
             //console.log(index);
             
            if (this.active1){

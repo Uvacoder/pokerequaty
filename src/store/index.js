@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex';
 import diapason from './modules/diapason.js'
+import auth from './modules/auth.js'
+
 
 Vue.use(Vuex);
 
@@ -1028,7 +1030,8 @@ export const store = new Vuex.Store({
 
   },
   modules:{
-    diapason
+    diapason,
+    auth
   }
   });
 

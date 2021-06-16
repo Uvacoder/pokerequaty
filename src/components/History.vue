@@ -1,8 +1,11 @@
 <template>
-  <div class="analize-history">
-      <h2>История анализа</h2>
+  <div style="text-align:center">
+      <h2>История анализа </h2>
+      <div v-if="ID<0" class="analize-history">
       <p>Для просмотра истории необходимо  <a @click="autoOn" >войти</a>
       </p>
+      </div>
+      <div v-if="ID>=0" class="history-list"></div>
   </div>
 </template>
 
@@ -12,7 +15,11 @@ export default {
         autoOn(){
             this.$emit('turnOnAuto');
         }
-    }
+    },
+    props:{
+        ID:Number,
+    },
+    
 }
 </script>
 
