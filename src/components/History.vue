@@ -5,7 +5,10 @@
       <p>Для просмотра истории необходимо  <a @click="autoOn" >войти</a>
       </p>
       </div>
-      <div v-if="ID>=0" class="history-list"></div>
+    <div v-if="ID>-1">
+        
+        <div  class="history-list" v-for="(game,index) in games" :key="index"> {{game.handCards}} </div>
+      </div>
   </div>
 </template>
 
@@ -18,7 +21,21 @@ export default {
     },
     props:{
         ID:Number,
+        counter:Number,
     },
+    data(){
+        return {
+            games:[],
+        }
+    },
+    
+    watch:{ 
+        counter(){
+            const users=this.$store.getters.GET_USERS;
+            this.games=users[this.ID].games.slice();
+            console.log(this.games);
+        }
+    }
     
 }
 </script>

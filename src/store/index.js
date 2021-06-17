@@ -467,7 +467,7 @@ export const store = new Vuex.Store({
 
         //\\ проверка на стрит флеш
         let checkOnSF=checkStraightFlesh(tmpEnemyTable[0].inFlesh);
-        console.log(checkOnSF+' -checkresult')
+        //console.log(checkOnSF+' -checkresult')
         switch (checkOnSF) {
           case 3:
             RoyalFleshCurrent++;
@@ -1345,7 +1345,7 @@ export const store = new Vuex.Store({
   //return 0-nothing, 1-flesh, 2-straight flesh, 3-royal
   function checkStraightFlesh(array){
    
-    if (array.length>0) {
+    if (array?.length>0) {
       
     let arr=array.slice();
     let pike=0,heart=0,diamond=0,club=0;

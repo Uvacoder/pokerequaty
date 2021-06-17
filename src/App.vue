@@ -5,7 +5,7 @@
       
     <button v-if="ID<0" class="lk" @click="activeAutorization=true">
     
-      <unicon name="user-circle" fill="white"  ></unicon>
+      <unicon name="user-circle" fill="white" ></unicon>
       <div style="font-size:15px;vertical-align:center"> Авторизация</div>
     
      </button>
@@ -39,7 +39,7 @@
     <ModalResults class="results" v-if="activeModal" :enemyStronger="enemyStronger" :enemyLower="enemyLower"
      :enemyEqual="enemyEqual" :heroComb="heroComb" :heroDraws="heroDraws" :ID="ID" @close="closeModal" :bankChances="bankChances" :maxPercent="maxPercent" />
   </div>
-  <History :ID="ID" @turnOnAuto="turningOnAvto" class="history-content" />
+  <History :counter="counter" :ID="ID" @turnOnAuto="turningOnAvto" class="history-content" />
   </div>
 </template>
 
@@ -106,6 +106,7 @@ export default {
       ID:-1,
       name:'',
       incorrectData:[0,0],
+      counter:0,
     }
   },
   
@@ -129,6 +130,7 @@ export default {
       //this.activeAutorization=true;
     },
     FindStat(){
+      
       this.$store.dispatch('FIND_STAT');
       this.$store.dispatch('FIND_PLAYER_ODDS');
       
@@ -150,9 +152,25 @@ export default {
       this.enemyEqual=this.$store.getters.GET_EQUAL_ENEMY_COMB;
       this.enemyLower=this.$store.getters.GET_LOWER_ENEMY_COMB;
 
-     
       
-    
+     
+     if (this.ID>=0) {
+       const Pos=this.inputs.indexOf('Hero');
+       const UsedCards=this.$store.getters.GET_USED_CARDS;
+      let data={
+        date:'15.06.2021',
+        players:this.inputs.slice(),
+        pos:this.positions[Pos],
+        handCards:UsedCards[5]+UsedCards[6]+' ',
+        tableCards:UsedCards[0]+UsedCards[1]+UsedCards[2]+UsedCards[3]+UsedCards[4],
+        diapson:'10',
+        bank:bank,
+        
+      }; 
+      this.$store.commit('ADD_GAME',[this.ID,data]);
+      
+       }
+      this.counter++;
 
       //const heroToCall=this.$store.getters.GET_HERO_TO_CALL;
       
@@ -195,9 +213,10 @@ export default {
       else if (prevOffset!=0 && curOffset!=0) {
         this.inputs=this.inputs.concat(this.inputs.splice(0,this.inputs.length-prevOffset));
         this.inputs=this.inputs.concat(this.inputs.splice(0,curOffset));
-        
       }
-      
+      console.log('pos '+this.positions);
+      console.log('check '+this.checks);
+      console.log('inputs '+this.inputs);
     },
 
     AddInput(index){
@@ -228,6 +247,7 @@ export default {
       }
       this.$store.commit('SET_OFFSET',0);
       this.checks[this.inputs.length-1]=1;
+      //console.log('inputs '+this.inputs);
     },
      logOut(){
        this.ID=-1;

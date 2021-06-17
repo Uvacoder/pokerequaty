@@ -24,7 +24,8 @@ export default {
         },
         ADD_GAME(state,data){
             //data[0]-id, data[1]-gameinfo
-            state.users[data[0]].games.push(data[1])
+            console.log(JSON.stringify(data));
+            state.users[data[0]].games.push(data[1]);
         }
     },
     actions :{ 
