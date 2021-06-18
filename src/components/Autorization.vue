@@ -53,13 +53,30 @@ methods:{
     logIn(){
       this.incorEm=0;
       this.incorPas=0;
-      //console.log(this.email+' '+this.password);
+      let data={
+        pass:this.password,
+        email:this.email,
+      }
+      
       //let pass=this.password;
      // let email=this.email;
       this.$emit('log-in',[this.email,this.password]);
       this.incorEm=this.incorrectData[0];
       this.incorPas=this.incorrectData[1];
-      //console.log('coorect 0 '+this.incorrectData[0]+' correct 1 '+this.incorrectData[1])
+
+      this.$http({
+          method: 'POST',
+          url:'http://localhost:3000/register/', 
+          data: JSON.stringify(data), 
+          headers:{'Content-Type': 'application/json; charset=utf-8'}
+        })
+      .then(response => {
+          console.log(response)
+      })
+      .catch(err =>{
+        console.log(err)
+      })
+      
     }
 },
 

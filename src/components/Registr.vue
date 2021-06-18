@@ -41,9 +41,17 @@ export default {
         
         
       
-        this.$http.post('http://localhost:3000/register/',data)
+        this.$http({
+    method: 'POST',
+    url:'http://localhost:3000/register/', 
+    data: JSON.stringify(data), 
+    headers:{'Content-Type': 'application/json; charset=utf-8'}
+})
           .then(response => {
           console.log(response.data)
+      })
+      .catch(err =>{
+        console.log(err)
       })
         //this.$store.dispatch('REGISTER',data)
     }
