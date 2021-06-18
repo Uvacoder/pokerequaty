@@ -91,7 +91,7 @@ export default {
       activeRegister:false,
       bankChances:0,
       maxPercent:0,
-      url:'http://localhost:3000',
+      url:'https://pokerequatyapi.netlify.app/.netlify/functions/api',
       ID:-1,
       name:'',
       incorrectData:[0,0],
@@ -99,7 +99,7 @@ export default {
     }
   },
    created(){
-     this.$http.get('http://localhost:3000/')
+     this.$http.get(this.url)
      .then(response => {
      console.log(response.data)
       })

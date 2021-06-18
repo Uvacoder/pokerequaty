@@ -39,6 +39,7 @@ export default {
         confirmPassword:this.confirmPassword,
         };
         
+        
       
         this.$http.post('http://localhost:3000/register/',data)
           .then(response => {
