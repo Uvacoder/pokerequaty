@@ -54,7 +54,7 @@ methods:{
       this.incorEm=0;
       this.incorPas=0;
       let data={
-        pass:this.password,
+        password:this.password,
         email:this.email,
       }
       
@@ -66,8 +66,8 @@ methods:{
 
       this.$http({
           method: 'POST',
-          url:'http://localhost:3000/register/', 
-          data: JSON.stringify(data), 
+          url:'http://localhost:3000/login/', 
+          data: data, 
           headers:{'Content-Type': 'application/json; charset=utf-8'}
         })
       .then(response => {

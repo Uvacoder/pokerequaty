@@ -287,7 +287,7 @@ export default {
       if (!isExist) {
         this.incorrectData[0]=11;
       }
-      console.log('incoorect email '+this.incorrectData[0]+' incorrect passs '+this.incorrectData[1])
+      //console.log('incoorect email '+this.incorrectData[0]+' incorrect passs '+this.incorrectData[1])
     },
     
 
