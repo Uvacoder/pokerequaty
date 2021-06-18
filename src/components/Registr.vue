@@ -39,7 +39,12 @@ export default {
         confirmPassword:this.confirmPassword,
         };
         
-        this.$store.dispatch('REGISTER',data)
+      
+        this.$http.post('http://localhost:3000/register/',data)
+          .then(response => {
+          console.log(response.data)
+      })
+        //this.$store.dispatch('REGISTER',data)
     }
     },
     data(){

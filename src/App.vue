@@ -31,7 +31,7 @@
     
 
     <button class="clear" @click="ClearAll" >Очистить все</button>
-    <button class="find" @click="FindStat" >Расчет</button>
+    <button disabled class="find" @click="FindStat" >Расчет</button>
     
     <Autorization class="autorization" :incorrectData="incorrectData" v-if="activeAutorization"  @log-in="logIn"  @open-register="openRegister" @close="closeModal" />
     
@@ -39,7 +39,7 @@
     <ModalResults class="results" v-if="activeModal" :enemyStronger="enemyStronger" :enemyLower="enemyLower"
      :enemyEqual="enemyEqual" :heroComb="heroComb" :heroDraws="heroDraws" :ID="ID" @close="closeModal" :bankChances="bankChances" :maxPercent="maxPercent" />
   </div>
-  <History :counter="counter" :ID="ID" @turnOnAuto="turningOnAvto" class="history-content" />
+  <History :counter="counter" :ID="ID" @turnOnAuto="turningOnAvto" @setGame="setHistoryGame" class="history-content" />
   </div>
 </template>
 
@@ -54,11 +54,7 @@ import Table from './components/Table.vue'
 import History from './components/History.vue'
 import Registr from './components/Registr.vue'
 
-
 //import axios from 'axios'
-
-
-
 
 export default {
   
@@ -76,13 +72,6 @@ export default {
        
   },
   
-   mounted(){
-     //axios.get(this.url)
-     // .then(response => {
-     //   console.log(response)
-     // })
-   },
- 
   data(){
     return {
       info:null,
@@ -109,10 +98,23 @@ export default {
       counter:0,
     }
   },
-  
-
+   created(){
+     this.$http.get('http://localhost:3000/')
+     .then(response => {
+     console.log(response.data)
+      })
+    
+   },
   methods :{
-   
+    setHistoryGame(index){
+      //console.log('ind '+index);
+      //console.log('ID '+this.ID);
+      const user=this.$store.getters.GET_USERS[this.ID];
+      //console.log('user '+JSON.stringify(user))
+      const game=user.games[index];
+      console.log(JSON.stringify(game));
+    },
+
     turningOnAvto(){
       this.activeAutorization=true; 
     },
@@ -158,7 +160,7 @@ export default {
        const Pos=this.inputs.indexOf('Hero');
        const UsedCards=this.$store.getters.GET_USED_CARDS;
       let data={
-        date:'15.06.2021',
+        date:new Date().getDate()+'.'+new Date().getMonth()+'.'+new Date().getFullYear(),
         players:this.inputs.slice(),
         pos:this.positions[Pos],
         handCards:UsedCards[5]+UsedCards[6]+' ',
@@ -377,6 +379,11 @@ header div{
     
 }
 
+.find:disabled {
+  color: white;
+  background-color:rgb(117, 173, 226);
+}
+
 .history-content{
   width:19.89%;
   border-left: 1px solid #c2c0c0;
@@ -405,7 +412,7 @@ header div{
 }
 
 .clear:hover,
-.find:hover {
+.find:hover:not([disabled="disabled"]) {
   background-color: rgb(0, 132, 255); /* Green */
   color: white;
   box-shadow: 0 6px 8px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
