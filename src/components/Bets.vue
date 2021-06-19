@@ -223,8 +223,8 @@ export default {
        this.queueOfPlayer=this.positions.length-1;
        this.playerTurns[this.queueOfPlayer]=true;
        // console.log('bank '+this.roundBank);
-      
-      this.$store.commit('SET_BANK',this.roundBank);
+      this.bank=Number(this.startedBank)+this.roundBank;
+      this.$store.commit('SET_BANK',this.bank);
      },
      roundBank(){
       this.bank=Number(this.startedBank)+this.roundBank;

@@ -9,7 +9,8 @@
         </header>
 
         <div class="modal-body">
-            <input required  class="login" type="text" placeholder="Адрес электронной почты"  v-model="email">
+            <span v-show="existUser"  class="bad-data">Такой пользователь сущесвтует</span>
+            <input required :class="{danger:existUser}"  class="login" type="text" placeholder="Адрес электронной почты"  v-model="email">
             <input required class="password" type="password" placeholder="Пароль" v-model="password">
             <input required class="password" :class="{danger:isDanger}" type="password" placeholder="Подтвердите пароль" v-model="confirmPassword">
             
@@ -41,18 +42,23 @@ export default {
         
         
       
-        this.$http({
-    method: 'POST',
-    url:'http://localhost:3000/register/', 
-    data: JSON.stringify(data), 
-    headers:{'Content-Type': 'application/json; charset=utf-8'}
-})
-          .then(response => {
-          console.log(response.data)
-      })
-      .catch(err =>{
-        console.log(err)
-      })
+    this.$http({
+      method: 'POST',
+      url:'http://localhost:3000/register/', 
+      data: JSON.stringify(data), 
+      headers:{'Content-Type': 'application/json; charset=utf-8'}
+    })
+    .then(response => {
+      
+      console.log(response.status);
+      alert('пользователь создан');
+      this.$emit('success-registration')
+      this.existUser=false;
+    })
+    .catch(err =>{
+      this.existUser=true;
+      console.log('такой пользователь сущесвтует '+ err)
+    })
         //this.$store.dispatch('REGISTER',data)
     }
     },
@@ -62,6 +68,7 @@ export default {
             password:'',
             confirmPassword:'',
             isDanger:false,
+            existUser:false,
             
         }
     },

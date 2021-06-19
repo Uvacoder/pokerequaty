@@ -41,6 +41,7 @@ data(){
     password:'',
     incorEm:0,
     incorPas:0,
+    games:[],
   }
 },
 methods:{
@@ -60,21 +61,31 @@ methods:{
       
       //let pass=this.password;
      // let email=this.email;
-      this.$emit('log-in',[this.email,this.password]);
-      this.incorEm=this.incorrectData[0];
-      this.incorPas=this.incorrectData[1];
+    //  this.$emit('log-in',[this.email,this.password]);
+     // this.incorEm=this.incorrectData[0];
+     // this.incorPas=this.incorrectData[1];
 
       this.$http({
           method: 'POST',
           url:'http://localhost:3000/login/', 
           data: data, 
-          headers:{'Content-Type': 'application/json; charset=utf-8'}
+          headers:{'Content-Type':'application/json; charset=utf-8'}
         })
       .then(response => {
           console.log(response)
+          this.games=response.data.games;
+          const ID=response.data.message;
+          this.incorEm=false;
+          this.incorPas=false;
+          this.$emit('log-in',[ID,this.games]);
       })
       .catch(err =>{
-        console.log(err)
+        if (err.response.status==404) {
+            this.incorEm=true;
+        } else if (err.response.status==401) {
+          this.incorPas=true;
+        }
+        
       })
       
     }

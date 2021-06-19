@@ -3,14 +3,14 @@
   
   <header class="app-header" >
       
-    <button v-if="ID<0" class="lk" @click="activeAutorization=true">
+    <button v-if="ID=='' " class="lk" @click="activeAutorization=true">
     
       <unicon name="user-circle" fill="white" ></unicon>
       <div style="font-size:15px;vertical-align:center"> Авторизация</div>
     
      </button>
      
-     <button v-if="ID>=0" class="lk" @click="logOut">
+     <button v-if="ID!='' " class="lk" @click="logOut">
       
       <unicon name="user-circle" fill="white"  ></unicon>
       <div style="font-size:15px;vertical-align:center" > Выход</div>
@@ -31,15 +31,15 @@
     
 
     <button class="clear" @click="ClearAll" >Очистить все</button>
-    <button disabled class="find" @click="FindStat" >Расчет</button>
+    <button class="find" @click="FindStat" >Расчет</button>
     
     <Autorization class="autorization" :incorrectData="incorrectData" v-if="activeAutorization"  @log-in="logIn"  @open-register="openRegister" @close="closeModal" />
     
-    <Registr class="reg" v-if="activeRegister" @close="closeRegister" />
+    <Registr class="reg" v-if="activeRegister" @close="closeRegister" @success-registration="successRegistr" />
     <ModalResults class="results" v-if="activeModal" :enemyStronger="enemyStronger" :enemyLower="enemyLower"
      :enemyEqual="enemyEqual" :heroComb="heroComb" :heroDraws="heroDraws" :ID="ID" @close="closeModal" :bankChances="bankChances" :maxPercent="maxPercent" />
   </div>
-  <History :counter="counter" :ID="ID" @turnOnAuto="turningOnAvto" @setGame="setHistoryGame" class="history-content" />
+  <History :counter="counter" :games="games" :ID="ID" @turnOnAuto="turningOnAvto" @setGame="setHistoryGame" class="history-content" />
   </div>
 </template>
 
@@ -92,23 +92,29 @@ export default {
       bankChances:0,
       maxPercent:0,
       url:'http://localhost:3000',
-      ID:-1,
+      ID:'',
       name:'',
       incorrectData:[0,0],
       counter:0,
+      games:[],
     }
   },
    created(){
-     this.$http.get('http://localhost:3000/')
-     .then(response => {
-     console.log(response.data)
-      })
-      .catch(err =>{
-        console.log(err)
-      })
+    //  this.$http.get('http://localhost:3000/')
+    //  .then(response => {
+    //  console.log(response.data)
+    //   })
+    //   .catch(err =>{
+    //     console.log(err)
+    //   })
     
    },
   methods :{
+    successRegistr(){
+      this.activeRegister=false;
+      this.activeAutorization=true;
+    },
+
     setHistoryGame(index){
       //console.log('ind '+index);
       //console.log('ID '+this.ID);
@@ -116,6 +122,21 @@ export default {
       //console.log('user '+JSON.stringify(user))
       const game=user.games[index];
       console.log(JSON.stringify(game));
+    },
+
+     logOut(){
+       this.ID='';
+       this.incorrectData[0]=0;
+       this.incorrectData[1]=0;
+    },
+    logIn(arr){
+      this.counter++;
+      this.ID=arr[0];
+      this.games=arr[1].slice();
+      this.activeAutorization=false;
+      console.log('id in app '+this.ID);
+      
+      //console.log('incoorect email '+this.incorrectData[0]+' incorrect passs '+this.incorrectData[1])
     },
 
     turningOnAvto(){
@@ -159,23 +180,40 @@ export default {
 
       
      
-     if (this.ID>=0) {
-       const Pos=this.inputs.indexOf('Hero');
-       const UsedCards=this.$store.getters.GET_USED_CARDS;
-      let data={
+    if (this.ID!='') {
+      const Pos=this.inputs.indexOf('Hero');
+      console.log('hero index '+this.positions[Pos]);
+      const UsedCards=this.$store.getters.GET_USED_CARDS;
+      let data1={
+        id:this.ID,
         date:new Date().getDate()+'.'+new Date().getMonth()+'.'+new Date().getFullYear(),
         players:this.inputs.slice(),
-        pos:this.positions[Pos],
+        position:this.positions[Pos],
         handCards:UsedCards[5]+UsedCards[6]+' ',
         tableCards:UsedCards[0]+UsedCards[1]+UsedCards[2]+UsedCards[3]+UsedCards[4],
         diapson:'10',
         bank:bank,
-        
       }; 
-      this.$store.commit('ADD_GAME',[this.ID,data]);
+
+    this.$http({
+          method: 'POST',
+          url:'http://localhost:3000/addgame/', 
+          data: JSON.stringify(data1), 
+          headers:{'Content-Type':'application/json; charset=utf-8'}
+        })
+    .then(response=>{
+        //console.log(response);
+        this.games=response.data.games;
+        console.log('games '+this.games)
+    })
+    .catch(err=>{
+      console.log(err)
+    })
+    //   this.$store.commit('ADD_GAME',[this.ID,data]);
       
-       }
-      this.counter++;
+    }
+
+    //   this.counter++;
 
       //const heroToCall=this.$store.getters.GET_HERO_TO_CALL;
       
@@ -193,7 +231,6 @@ export default {
       this.$store.dispatch('CLEAR_ALL');
       this.clear=this.$store.getters.GET_CLEAR;  
       this.$store.commit('SET_OFFSET',0);
-
       
       for (let i = 0; i < this.checks.length; i++) {
         this.checks[i]=0;
@@ -254,41 +291,7 @@ export default {
       this.checks[this.inputs.length-1]=1;
       //console.log('inputs '+this.inputs);
     },
-     logOut(){
-       this.ID=-1;
-       this.incorrectData[0]=0;
-       this.incorrectData[1]=0;
-    },
-    logIn(arr){
-      this.incorrectData[0]=0;
-       this.incorrectData[1]=0;
-      const email=arr[0];
-      const password=arr[1];
-      const users=this.$store.getters.GET_USERS;
-      let isExist=false;
-      
-      for (let i = 0; i < users.length; i++) {
-        if (users[i].email==email) {
-          isExist=true;
-          if (users[i].password==password){
-            this.ID=i;
-            this.name=email;
-            this.activeAutorization=false;
-            this.incorrectData[0]=0;
-            this.incorrectData[1]=0;
-          } else {
-            
-            this.incorrectData[1]=11;
-          }
-        }
-      }
-
-      
-      if (!isExist) {
-        this.incorrectData[0]=11;
-      }
-      //console.log('incoorect email '+this.incorrectData[0]+' incorrect passs '+this.incorrectData[1])
-    },
+    
     
 
     DeleteInput(index){

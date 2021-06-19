@@ -1,15 +1,15 @@
 <template>
   <div style="text-align:center">
       <h2>История анализа </h2>
-      <div v-if="ID<0" class="analize-history">
+      <div v-if="ID==''" class="analize-history">
       <p>Для просмотра истории необходимо  <a @click="autoOn" >войти</a>
       </p>
       </div>
-    <div v-if="ID>-1" class="analize-history">
+    <div v-if="ID!=''" class="analize-history">
         <div  class="history-list" v-for="(game,index) in games" :key="index"  @click="setGame(index)"> 
             <div class="game-date">Дата: {{game.date}}</div>
             <div class="players-count">Игроки: {{game.players.length}}</div>
-            <div class="position">Позиция: {{game.pos}}</div>
+            <div class="position">Позиция: {{game.position}}</div>
             <div class="hand-cards">Рука: {{game.handCards}}</div>
             </div>
       </div>
@@ -28,21 +28,17 @@ export default {
             this.$emit('setGame',index);
         }
     },
-    props:{
-        ID:Number,
-        counter:Number,
-    },
+    props:["ID","counter","games"],
     data(){
         return {
-            games:[],
+            userGames:[],
         }
     },
     
     watch:{ 
         counter(){
             if (this.ID!=-1) {
-              const users=this.$store.getters.GET_USERS;
-            this.games=users[this.ID].games.slice();  
+              console.log('ok');
             }
             
             
