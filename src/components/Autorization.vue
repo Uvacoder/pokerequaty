@@ -72,21 +72,26 @@ methods:{
           headers:{'Content-Type':'application/json; charset=utf-8'}
         })
       .then(response => {
-          console.log(response)
+          
+          sessionStorage.token=response.data.token;
+          console.log('auth token '+ localStorage.token);
+          //document.cookie=response.data.cookie;
           this.games=response.data.games;
           const ID=response.data.message;
+          this.$emit('log-in',[ID,this.games]);
           this.incorEm=false;
           this.incorPas=false;
-          this.$emit('log-in',[ID,this.games]);
+          
       })
       .catch(err =>{
         if (err.response.status==404) {
             this.incorEm=true;
         } else if (err.response.status==401) {
           this.incorPas=true;
-        }
-        
+        } 
       })
+
+     
       
     }
 },
