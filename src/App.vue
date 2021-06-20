@@ -25,13 +25,13 @@
     <MainPlayer class="cards" />
    
     <Bets class="bets" :inputs="inputs" :positions="positions" :checks="checks"  @change-pos="ChangePosition"  />
-    <Table class="table" @add-input="AddInput" @delete-input="DeleteInput" />
+    <Table class="table" @check-findAvail="checkFindAvail" @add-input="AddInput" @delete-input="DeleteInput" />
 
     
     
 
     <button class="clear" @click="ClearAll" >Очистить все</button>
-    <button class="find" @click="FindStat" >Расчет</button>
+    <button :disabled="disableFind" class="find" @click="FindStat" >Расчет</button>
     
     <Autorization class="autorization" :incorrectData="incorrectData" v-if="activeAutorization"  @log-in="logIn"  @open-register="openRegister" @close="closeModal" />
     
@@ -97,6 +97,7 @@ export default {
       incorrectData:[0,0],
       counter:0,
       games:[],
+      disableFind:true,
     }
   },
    created(){
@@ -151,6 +152,12 @@ export default {
       this.activeRegister=true;
       
     },
+    checkFindAvail(value){
+      if (value=='+') {
+        this.disableFind=true
+      } else
+        this.disableFind=false
+    },
     closeRegister() {
       this.activeRegister=false;
       //this.activeAutorization=true;
@@ -162,19 +169,28 @@ export default {
       
       this.heroComb=this.$store.getters.GET_OUTPUT_HERO_COMB;
       this.heroDraws=this.$store.getters.GET_OUTPUT_DRAWS;
-        console.log('app hero comb '+ this.heroComb)
+      console.log('app hero comb '+ this.heroComb.substr(0,4))
       this.enemyStronger=this.$store.getters.GET_STRONGER_ENEMY_COMBS;
       
 
       this.maxPercent=0;
+      console.log('hero draw ');
+
       for (let i = 0; i < this.heroDraws.length; i++) {
-        if (this.heroDraws[i].percent>this.maxPercent) {
-          this.maxPercent=this.heroDraws[i];
+        console.log(JSON.stringify(this.heroDraws[i]))
+        if (Number(this.heroDraws[i].percent)>this.maxPercent) {
+          this.maxPercent=Number(this.heroDraws[i].percent);
         }
       }
-      console.log('max '+this.maxPercent);
+      //console.log('max '+this.maxPercent);
       const bank=this.$store.getters.GET_BANK;
       const playerBet=this.$store.getters.GET_HERO_TO_CALL;
+      if (this.heroComb.substr(0,4)=='Каре') {
+        this.maxPercent=95;
+      } 
+      if (this.heroComb.substr(0,11)=='Стрит-Флеш') {
+        this.maxPercent=97;
+      }
 
       this.bankChances=Number(playerBet/bank*100).toFixed(2);
       

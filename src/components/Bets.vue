@@ -93,7 +93,7 @@ export default {
           activeInput4:false,
           activeInput5:false,
           BigBlind:20,
-          currentBet:20,
+          currentBet:0,
           notRaise:true,
           queueOfPlayer:0,
           wasRaise:false,
@@ -101,10 +101,10 @@ export default {
           // 1-call 2-raise 3-fold 
           action:[0,0,0,0,0,0],
           playerTurns:[false,false,false,false,false,false],
-          betSizes:[20,10,0,0,0,0,0],
-          roundBank:30,
-          startedBank:'',
-          bank:30,
+          betSizes:[0,0,0,0,0,0,0],
+          roundBank:0,
+          startedBank:0,
+          bank:0,
           heroToCall:0,
 
         }
@@ -122,28 +122,28 @@ export default {
 
 
           //BB
-          if (this.positions[index]=='BB' && this.action[index]=='fold') {
-            result=this.BigBlind;
-          }
-          else if (this.positions[index]=='BB' && this.action[index]=='call') {
+          // if (this.positions[index]=='BB' && this.action[index]=='fold') {
+          //   result=this.BigBlind;
+          // }
+          // else if (this.positions[index]=='BB' && this.action[index]=='call') {
          
-            result=BetToCall;
-          }
+          //   result=BetToCall;
+          // }
           
-          else if (this.action[index]=='raise'){
+          if (this.action[index]=='raise'){
             this.$store.commit('SET_BET_TO_CALL',this.BigBlind+BetToCall);
            
             result=this.BigBlind+BetToCall;
           }
-          else if (this.inputs.length==2 && index==1) {
-            result=this.BigBlind/2
-          }
-          else if (this.positions[index]=='SB' && this.action[index]!='call' ) {
-           result=this.BigBlind/2;
-          }
-          else if (this.positions[index]=='SB' && this.action[index]=='call' ) {
-            result=BetToCall;
-          }
+          // else if (this.inputs.length==2 && index==1) {
+          //   result=this.BigBlind/2
+          // }
+          // else if (this.positions[index]=='SB' && this.action[index]!='call' ) {
+          //  result=this.BigBlind/2;
+          // }
+          // else if (this.positions[index]=='SB' && this.action[index]=='call' ) {
+          //   result=BetToCall;
+          // }
           else if (this.action[index]=='call') {
             result=BetToCall;  
           } else if (this.action[index]==0){

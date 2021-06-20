@@ -2,34 +2,34 @@
     <div class="table-cards" v-on:keyup.esc="removeCardList">
     <button class="slot-1" :class="[{default:!choosen1},{spade:mast[0]=='spade' && choosen1},{club:mast[0]=='club' && choosen1},{red:mast[0]=='red' && choosen1}]" 
     @click="active1=!active1,active2=false,active3=false,active4=false,active5=false">{{cardvalue1}}</button>   
-    <button v-show="choosen1" @click="DeleteFirst" class="del delete-1">Удалить</button>
+    <button v-show="choosen1"  @click="DeleteFirst" class="del delete-1">Удалить</button>
     
     <NewList class="list-1" v-if="active1" @choose-card="ChooseCard" :position='3' /> 
 
     
 
-    <button class="slot-2" :class="[{default:!choosen2},{spade:mast[1]=='spade' && choosen2},{club:mast[1]=='club' && choosen2},{red:mast[1]=='red' && choosen2}]"
+    <button class="slot-2" :disabled="(mast[0]=='0')" :class="[{default:!choosen2},{spade:mast[1]=='spade' && choosen2},{club:mast[1]=='club' && choosen2},{red:mast[1]=='red' && choosen2}]"
      @click="active1=false,active2=!active2,active3=false,active4=false,active5=false">{{cardvalue2}}</button>   
      <button v-show="choosen2" @click="DeleteSecond" class="del delete-2">Удалить</button>
 
     <NewList class="list-2" v-if="active2" @choose-card="ChooseCard" :position='4' /> 
 
 
-    <button class="slot-3" :class="[{default:!choosen3},{spade:mast[2]=='spade' && choosen3},{club:mast[2]=='club' && choosen3},{red:mast[2]=='red' && choosen3}]"
+    <button class="slot-3" :disabled="(mast[1]=='0')" :class="[{default:!choosen3},{spade:mast[2]=='spade' && choosen3},{club:mast[2]=='club' && choosen3},{red:mast[2]=='red' && choosen3}]"
      @click="active1=false,active2=false,active3=!active3,active4=false,active5=false">{{cardvalue3}}</button> 
      <button v-show="choosen3" @click="DeleteThird" class="del delete-3">Удалить</button>  
 
     <NewList class="list-3" v-if="active3" @choose-card="ChooseCard" :position='5' /> 
 
 
-    <button class="slot-4" :class="[{default:!choosen4},{spade:mast[3]=='spade' && choosen4},{club:mast[3]=='club' && choosen4},{red:mast[3]=='red' && choosen4}]"
+    <button class="slot-4" :disabled="(mast[2]=='0')" :class="[{default:!choosen4},{spade:mast[3]=='spade' && choosen4},{club:mast[3]=='club' && choosen4},{red:mast[3]=='red' && choosen4}]"
      @click="active1=false,active2=false,active3=false,active4=!active4,active5=false">{{cardvalue4}}</button>   
      <button v-show="choosen4" @click="DeleteFourth" class="del delete-4">Удалить</button>
 
-    <NewList class="list-4" v-if="active4" @choose-card="ChooseCard" :position='6' /> 
+    <NewList class="list-4"  v-if="active4" @choose-card="ChooseCard" :position='6' /> 
 
 
-    <button class="slot-5" :class="[{default:!choosen5},{spade:mast[4]=='spade' && choosen5},{club:mast[4]=='club' && choosen5},{red:mast[4]=='red' && choosen5}]"
+    <button class="slot-5" :disabled="mast[3]=='0'" :class="[{default:!choosen5},{spade:mast[4]=='spade' && choosen5},{club:mast[4]=='club' && choosen5},{red:mast[4]=='red' && choosen5}]"
      @click="active1=false,active2=false,active3=false,active4=false,active5=!active5">{{cardvalue5}}</button>   
      <button v-show="choosen5" @click="DeleteFifth" class="del delete-5">Удалить</button>
 
@@ -102,7 +102,12 @@ export default {
            
             
         },
+        watch(){
+            
+        },
         ChooseCard(arr){
+
+
             let value=arr[0];
             let index=arr[1];
             //console.log(index);
@@ -182,13 +187,15 @@ export default {
             this.active3=false;
             this.active4=false; 
             this.active5=false; 
-            
+            //console.log('mast '+this.mast)
+            this.$emit('check-findAvail',this.cardvalue3);
         },
         DeleteFirst(){
             this.isRed1=false;
             this.isClub1=false;
             this.isSpade1=false;
             this.choosen1=false;
+            this.mast[0]='0';
             this.cardvalue1='+'
             this.$store.commit('SET_ACTIVE',this.indexes[0]);
             this.$store.dispatch('UPDATE_USED_CARDS',[0,'']);
@@ -200,6 +207,7 @@ export default {
             this.isSpade2=false;
             this.choosen2=false;
             this.cardvalue2='+'
+            this.mast[1]='0';
             this.$store.commit('SET_ACTIVE',this.indexes[1]);
             this.$store.dispatch('UPDATE_USED_CARDS',[1,'']);
 
@@ -210,8 +218,10 @@ export default {
             this.isSpade3=false;
             this.choosen3=false;
             this.cardvalue3='+'
+            this.mast[2]='0';
             this.$store.commit('SET_ACTIVE',this.indexes[2]);
             this.$store.dispatch('UPDATE_USED_CARDS',[2,'']);
+            this.$emit('check-findAvail',this.cardvalue3);
 
         },
         DeleteFourth(){
@@ -220,6 +230,7 @@ export default {
             this.isSpade4=false;
             this.choosen4=false;
             this.cardvalue4='+'
+            this.mast[3]='0';
             this.$store.commit('SET_ACTIVE',this.indexes[3]);
             this.$store.dispatch('UPDATE_USED_CARDS',[3,'']);
         },
@@ -229,6 +240,7 @@ export default {
             this.isSpade5=false;
             this.choosen5=false;
             this.cardvalue5='+'
+            this.mast[4]='0';
             this.$store.commit('SET_ACTIVE',this.indexes[4]);
             this.$store.dispatch('UPDATE_USED_CARDS',[4,'']);
 

@@ -17,8 +17,8 @@
        
         
         <div class="modal-body" >
-          <div class="hero-comb">
-            <span><b>Готовая комбинация {{heroComb}}</b></span>   
+          <div v-if="heroComb!=''" class="hero-comb">
+            <span ><b>Готовая комбинация {{heroComb}}</b></span>   
           </div>
           <span class="hero-label"> Шанс на усиление</span>
             <span class="enemy-label">Kомбинации соперника</span> 

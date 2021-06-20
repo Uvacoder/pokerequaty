@@ -3,7 +3,7 @@
     <div class="in-table">   
         
         <!--<NewList @choose-card="ChooseCard" v-show="active1 " class="card-list1" />-->
-        <TableCards class="slot-1"  />
+        <TableCards class="slot-1" @check-findAvail="checkFindAvail" />
         
         <!--<button @click="active1=false,active2=false,active3=false,active4=false,active5=!active5" class="slot slot-5">+</button>-->
          
@@ -109,6 +109,9 @@ export default {
         }
     },
     methods:{     
+        checkFindAvail(value){
+            this.$emit('check-findAvail',value);
+        },
         addInput1(){
             this.clicked1=true;
             this.hover1=false;
