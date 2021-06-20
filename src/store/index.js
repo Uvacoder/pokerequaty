@@ -816,7 +816,7 @@ export const store = new Vuex.Store({
           //highestComb='pair'
         } 
 
-      console.log('draw '+JSON.stringify(drawCombs));
+     // console.log('draw '+JSON.stringify(drawCombs));
      //  // console.log('ready comb is '+readyCombs);
     // console.log('hierarchy '+JSON.stringify(combinationHierarchy));
 

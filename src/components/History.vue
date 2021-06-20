@@ -6,13 +6,18 @@
       </p>
       </div>
     <div v-if="ID!=''" class="analize-history">
+        
         <div  class="history-list" v-for="(game,index) in games" :key="index"  @click="setGame(index)"> 
-            <div class="game-date">Дата: {{game.date}}</div>
-            <div class="players-count">Игроки: {{game.players.length}}</div>
-            <div class="position">Позиция: {{game.position}}</div>
-            <div class="hand-cards">Рука: {{game.handCards}}</div>
-            </div>
-      </div>
+                <div class="history-el">
+                <div class="game-date">Дата: {{game.date}}</div>
+                <div class="players-count">Игроки: {{game.players.length}}</div>
+                <div class="position">Позиция: {{game.position}}</div>
+                <div class="hand-cards">Рука: {{game.handCards}}</div>
+                </div>
+                <button  class="delete-game" @click="deleteGame(index)">X</button>
+        </div>
+    </div>
+      
      
   </div>
 </template>
@@ -26,6 +31,9 @@ export default {
         setGame(index){
             
             this.$emit('setGame',index);
+        },
+        deleteGame(number){
+            this.$emit('delete-game',number);
         }
     },
     props:["ID","counter","games"],
@@ -39,8 +47,7 @@ export default {
         counter(){
             if (this.ID!=-1) {
               console.log('ok');
-            }
-            
+            }     
             
         }
     }
@@ -49,12 +56,33 @@ export default {
 </script>
 
 <style scoped>
+
+    .delete-game{
+        height:30px;
+        width: 30px;
+        text-align: center;
+        margin-left:5px;
+        background: transparent;
+        border:1px solid red;
+        color:red;
+        border-radius: 5px;
+    }
+
+    .delete-game:hover {
+        color:white;    
+        background: red;
+    }
+
     .analize-history {
         background-color: rgb(255, 255, 255);
         display: flex;
-        flex-direction: column;
         flex-wrap: wrap;
-        justify-content: flex-start;
+        
+    }
+
+    .history-list {
+        display:flex;
+        justify-content: center;
         align-items: center;
     }
     h2 {
@@ -72,7 +100,7 @@ export default {
         cursor: pointer;
         color: royalblue;
     }
-    .history-list {
+    .history-el {
         display:flex;
         flex-wrap: wrap;
         width: 75%;
@@ -82,7 +110,7 @@ export default {
         border: 1px solid #e0dfdf;
     }
 
-    .history-list:hover {
+    .history-el:hover {
         cursor: pointer;
         background: #eeeeee;
         box-shadow: 1px 1px 5px 1px;

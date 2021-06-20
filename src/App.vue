@@ -39,7 +39,7 @@
     <ModalResults class="results" v-if="activeModal" :enemyStronger="enemyStronger" :enemyLower="enemyLower"
      :enemyEqual="enemyEqual" :heroComb="heroComb" :heroDraws="heroDraws" :ID="ID" @close="closeModal" :bankChances="bankChances" :maxPercent="maxPercent" />
   </div>
-  <History :counter="counter" :games="games" :ID="ID" @turnOnAuto="turningOnAvto" @setGame="setHistoryGame" class="history-content" /> 
+  <History :counter="counter" :games="games" :ID="ID" @turnOnAuto="turningOnAvto" @delete-game="deleteGame" @setGame="setHistoryGame" class="history-content" /> 
   </div>
 </template>
 
@@ -124,14 +124,30 @@ export default {
       this.activeRegister=false;
       this.activeAutorization=true;
     },
+    deleteGame(number){
+      this.$http({
+          method: 'POST',
+          url:'http://localhost:3000/deletegame/', 
+          data: {id:this.ID,number:number}, 
+          headers:{'Content-Type':'application/json; charset=utf-8'}
+        })
+    .then(response=>{
+        //console.log(response);
+        this.games=response.data.games;
+      //  console.log('games '+this.games)
+    })
+    .catch(err=>{
+      console.log(err)
+    })
+    },
 
-    setHistoryGame(index){
+    setHistoryGame(){
       //console.log('ind '+index);
       //console.log('ID '+this.ID);
-      const user=this.$store.getters.GET_USERS[this.ID];
+      //const user=this.$store.getters.GET_USERS[this.ID];
       //console.log('user '+JSON.stringify(user))
-      const game=user.games[index];
-      console.log(JSON.stringify(game));
+      //const game=user.games[index];
+      //console.log(JSON.stringify(game));
     },
 
      logOut(){
@@ -178,15 +194,15 @@ export default {
       
       this.heroComb=this.$store.getters.GET_OUTPUT_HERO_COMB;
       this.heroDraws=this.$store.getters.GET_OUTPUT_DRAWS;
-      console.log('app hero comb '+ this.heroComb.substr(0,11))
+      //console.log('app hero comb '+ this.heroComb.substr(0,11))
       this.enemyStronger=this.$store.getters.GET_STRONGER_ENEMY_COMBS;
       
 
       this.maxPercent=0;
-      console.log('hero draw ');
+      //console.log('hero draw ');
 
       for (let i = 0; i < this.heroDraws.length; i++) {
-        console.log(JSON.stringify(this.heroDraws[i]))
+//console.log(JSON.stringify(this.heroDraws[i]))
         if (Number(this.heroDraws[i].percent)>this.maxPercent) {
           this.maxPercent=Number(this.heroDraws[i].percent);
         }
@@ -215,7 +231,7 @@ export default {
      
     if (this.ID!='') {
       const Pos=this.inputs.indexOf('Hero');
-      console.log('hero index '+this.positions[Pos]);
+     // console.log('hero index '+this.positions[Pos]);
       const UsedCards=this.$store.getters.GET_USED_CARDS;
       let data1={
         id:this.ID,
@@ -237,7 +253,7 @@ export default {
     .then(response=>{
         //console.log(response);
         this.games=response.data.games;
-        console.log('games '+this.games)
+      //  console.log('games '+this.games)
     })
     .catch(err=>{
       console.log(err)
@@ -289,9 +305,9 @@ export default {
         this.inputs=this.inputs.concat(this.inputs.splice(0,this.inputs.length-prevOffset));
         this.inputs=this.inputs.concat(this.inputs.splice(0,curOffset));
       }
-      console.log('pos '+this.positions);
-      console.log('check '+this.checks);
-      console.log('inputs '+this.inputs);
+     // console.log('pos '+this.positions);
+     // console.log('check '+this.checks);
+     // console.log('inputs '+this.inputs);
     },
 
     AddInput(index){
