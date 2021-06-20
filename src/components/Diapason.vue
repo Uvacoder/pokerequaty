@@ -202,9 +202,9 @@
     </div>
 
     
-    <button class="zero" @click="value=2" >ОЧИСТИТЬ</button>
+    <button class="zero" @click="value=4" >ОЧИСТИТЬ</button>
     
-    <input @change="changeDiapason" class="slider" type="range" min="2" max="50" step="2" v-model="value">
+    <input @change="changeDiapason" class="slider" type="range" min="4" max="50" step="2" v-model="value">
     <p class="slider-value">> {{value}}%</p>
 </div>
     
@@ -215,7 +215,7 @@ export default {
     name: 'Diapason',
     data(){
         return {
-            value:2,
+            value:4,
             diapasonValues:['AA','KK','QQ']
             }
     },

@@ -11,12 +11,15 @@
             <button type="button" class="btn-close btn-right" @click="close" aria-label="Close modal">
               x
             </button>
-        
+          
         </header>
         
        
         
         <div class="modal-body" >
+          <div class="hero-comb">
+            <span><b>Готовая комбинация {{heroComb}}</b></span>   
+          </div>
           <span class="hero-label"> Шанс на усиление</span>
             <span class="enemy-label">Kомбинации соперника</span> 
           <div class="enemy-combs">
@@ -122,13 +125,14 @@ export default {
 .modal {
   width:400px;
   min-height: 300px;
-  max-height: 600px;
+  
   background: #ffffff;
   box-shadow: 2px 2px 20px 2px;
   overflow-x: auto;
   display: flex;
   flex-direction: column;
   text-align: center;
+  justify-content: space-around;
   
 }
     
@@ -136,8 +140,9 @@ export default {
 .modal-footer {
   padding: 15px;
   display: flex;
-  
 }
+
+
 
 .enemy-lower{
   color:rgb(12, 182, 12);
@@ -158,6 +163,13 @@ export default {
   
 }
 
+.hero-comb {
+
+  grid-column-start: 1;
+  grid-column-end: -1;
+  font-size: 20px;
+}
+
 .enemy-combs,
 .hero-draws {
   display: flex;
@@ -167,7 +179,7 @@ export default {
 
 .hero-draws {
   grid-column-start: 1;
-  grid-row-start: 3;
+  grid-row-start: 4;
   border-right: 1px solid #eeeeee;
   font-size: 17px;
   font-weight: 600;
@@ -177,7 +189,7 @@ export default {
 
 .enemy-combs {
   grid-column-start: 2;
-  grid-row-start: 3;
+  grid-row-start: 4;
   
   
 }
@@ -185,17 +197,17 @@ export default {
 
 .modal-footer {
   align-items: flex-end;
-  border-top: 1px solid #eeeeee;
   justify-content: center;
 }
 
 .modal-body {
   position: relative;
-  min-height: 150px;
+  min-height: 200px;
+  max-height: 400px;
   padding: 20px 10px;
   display: grid;
   grid-template-columns: 50% 50%  ;
-  grid-template-rows: 15% 15% 70%;
+  grid-template-rows:5% 10% 15% 70%;
   
 }
 
@@ -225,12 +237,12 @@ color: white;
 
 .hero-label {
   grid-column-start: 1;
-  grid-row-start: 2;
+  grid-row-start: 3;
 }
 
 .enemy-label {
   grid-column-start: 2;
-  grid-row-start: 2;
+  grid-row-start: 3;
 }
 
 .modal-fade-enter,

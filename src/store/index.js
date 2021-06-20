@@ -31,9 +31,13 @@ export const store = new Vuex.Store({
       strongerEnemyCombs:[],
       equalEnemyComb:'',
       lowerEnemyCombs:[],
+      tableComb:'',
 
     },
     getters: {
+      GET_TABLE_COMB:state=>{
+        return state.tableComb;
+      },
       GET_HERO_TO_CALL:state=>{ 
         return state.heroToCall;
       },
@@ -56,7 +60,7 @@ export const store = new Vuex.Store({
       GET_OUTPUT_DRAWS:state=>{
         return state.outputDraws;
       },
-      GET_HERO_COMBS:state=>{
+      GET_OUTPUT_HERO_COMB:state=>{
         return state.outputHeroComb;
       },
       GET_OUTPUT_ENEMY: state=>{
@@ -182,6 +186,9 @@ export const store = new Vuex.Store({
         state.availCards=arr.slice();
         //console.log(state.availCards+ ' avail in set');
       },
+      SET_TABLE_COMB:(state,value)=>{
+        state.tableComb=value;
+      }
     },
     actions: {
       FIND_STAT(context){
@@ -193,120 +200,148 @@ export const store = new Vuex.Store({
 
         let diap=context.getters.GET_DIAPASON;
         
-        
+        let tableHier={
+          pair:0,
+          twoPairs:0,
+          set:0,
+          straight:0,
+          flesh:0,
+          fullHouse:0,
+          quad:0,
+          straightFlesh:0,
+          fleshRoyal:0,
+        }
 
         let combinations=[];
         //let drawCombs=[];
-        //let combReady=[];
+        let combReady=[];
        // let chances=[];
       
       //only cards on table 
-        let tableCards=[{value:usedcards[0],inPair:1,inFlesh:[],inStraight:[]},
-        {value:usedcards[1],inPair:1,inFlesh:[],inStraight:[]},
-        {value:usedcards[2],inPair:1,inFlesh:[],inStraight:[]},
-        {value:usedcards[3],inPair:1,inFlesh:[],inStraight:[]},
-        {value:usedcards[4],inPair:1,inFlesh:[],inStraight:[]},
+        let tableCards=[{value:usedcards[0],repeatCount:1,inFlesh:[usedcards[0],usedcards[1],usedcards[2],usedcards[3],usedcards[4]],
+          inStraight:[usedcards[0].charAt(0),usedcards[1].charAt(0),usedcards[2].charAt(0),usedcards[3].charAt(0),usedcards[4].charAt(0)]},
+        {value:usedcards[1],repeatCount:1,inFlesh:[],inStraight:[]},
+        {value:usedcards[2],repeatCount:1,inFlesh:[],inStraight:[]},
+        {value:usedcards[3],repeatCount:1,inFlesh:[],inStraight:[]},
+        {value:usedcards[4],repeatCount:1,inFlesh:[],inStraight:[]},
         ];
 
        tableCards=tableCards.filter(x=>x.value!=='');  
 
-        for (let k = 0; k < tableCards.length; k++) {
-          tableCards[0].inStraight.push(tableCards[k].value.charAt(0));
-          tableCards[0].inFlesh.push(tableCards[k].value); 
-        }
-
+       
         
         //сonsole.log(chancesOfCombs);
-/*
-        let set=0,pair1=0,pair2=0,quad=0;
-      
-        
-       //looking table cards 
-        for (let i = 0; i< 4; i++){
-            if (usedcards[i]!='') {
-              
-                tableCards[i].inStraight.push(usedcards[i].charAt(0));
-                tableCards[i].inFlesh.push(usedcards[i]);
-                
-            for (let j = i+1; j < 4; j++) { 
-              if (usedcards[j]!='') {
-              tableCards[i].inStraight.push(usedcards[j].charAt(0));
-              tableCards[i].inFlesh.push(usedcards[j]);
 
-                ///check on pairs set 
-                if (tableCards[i].value.charAt(0)==usedcards[j].charAt(0)) {
-                  tableCards[i].inPair++;
-                  tableCards[j].inPair=-99;
+        let set=0,pair1=0,pair2=0;
+      
+        for (let i = 0; i < tableCards.length; i++) {
+          if (tableCards[i].value!=='') {
+            
+            for (let j = i+1; j < tableCards.length; j++) {
+              if (tableCards[j].value!=='') {
+                
+                if (tableCards[i].value.charAt(0)==tableCards[j].value.charAt(0)) {
+                  tableCards[i].repeatCount++;
+                  tableCards[j].repeatCount=-99;
                 }
               }
             }
             
-            
+            //check on repeatable combs
+           
+            if (tableCards[i].repeatCount==4) {
+             // quad=tableCards[i].value.charAt(0);
+              tableHier.quad=5;
 
-            if (tableCards[i].inPair==4) {
-              
-              quad=tableCards[i].value.charAt(0)
-              combReady.pop();
-              combReady.push('quad of '+quad);
-            }
+            } else if (tableCards[i].repeatCount==3 && pair1==0 && pair2==0) {
+              set=tableCards[i].value.charAt(0);
+              tableHier.set=5;
 
-            if (tableCards[i].inPair==3 && quad==0 ) {
-              //console.log('break, pair1: '+pair1+' pair2: '+pair2);
-              
-              if (pair1!=0) {
-                combReady=[];
-                combReady.push('full house');
-                set=tableCards[i].value.charAt(0)
-              } else if (pair2==0) {
-                set=tableCards[i].value.charAt(0)
-                combReady.pop();
-                combReady.push('set of '+set);
-              }
-              
-            }
-            if (tableCards[i].inPair==3 && tableCards[i].value.charAt(0)==pair2 && quad==0) {
-                combReady=[];
-                combReady.push('full house');   
-                set=tableCards[i].value.charAt(0)
-            }
+            } else if (tableCards[i].repeatCount==3 && pair2!=0) {
+           //   fh=tableCards[i].value.charAt(0)+pair2;
+              tableHier.fullHouse=5;
 
+            } else if (tableCards[i].repeatCount==3 && pair1!=0) {
+            //  fh=tableCards[i].value.charAt(0)+pair1;
+              tableHier.fullHouse=5;
 
-            if (tableCards[i].inPair==2 && set==0 && quad==0
-              ) {
-              if (pair1===0) {
+            } else if (tableCards[i].repeatCount==2 && set!=0) {
+          //    fh=set+tableCards[i].value.charAt(0);
+              tableHier.fullHouse=5;
+
+            } else if (tableCards[i].repeatCount==2) {
+              if (pair1==0) {
                 pair1=tableCards[i].value.charAt(0);
+                tableHier.pair=5;
+              } else if (pair1!=0) {
+                if (pair2!=0) {
+                  pair1=pair2;
+                  pair2= tableCards[i].value.charAt(0);
+                  tableHier.twoPairs=5;
+                } else {
+                  pair2=tableCards[i].value.charAt(0);
+                  tableHier.twoPairs=5;
+                }
               }
-              else if (pair2==0){
-                pair2=tableCards[i].value.charAt(0);
-              }
-              combReady.push('pair of '+tableCards[i].value.charAt(0));
-            }
+            } 
             
-            if (tableCards[i].inStraight.length>4) {
-              tableCards[i].inStraight.sort(straightSort);
-              let tmpArr=tableCards[i].inStraight.slice(0);
-
+            
             //check on straight 
- 
+           
+            
             //check on flesh
-
-            if (checkFlesh(tableCards[i].inFlesh) && checkStraight(tmpArr) && tableCards[i].inStraight[4]=='A') {
-              combReady.push('Flesh Royal');
+            if (i==0) {
+                let tmpStr=Array.from(new Set(tableCards[0].inStraight.slice(0)));
+                tmpStr.sort(straightSort);
+                
+                let tmpTable=tableCards[0].inFlesh.slice()
+               
+                let checkOnSF=checkStraightFlesh(tmpTable);
+                //console.log(checkOnSF+' -checkresult')
+                if (checkOnSF==0) {
+                  if (checkStraight(tmpStr)) {
+                    combReady.push('Стрит')
+                    tableHier.straight++;
+                  }
+                } else {
+                  switch (checkOnSF) {
+                    case 3:
+                      combReady.push('Флеш-рояль')
+                      tableHier.fleshRoyal++;
+                      break;
+                    case 2:
+                      combReady.push('Стрит-флеш')
+                      tableHier.straightFlesh++;
+                      break;
+                    case 1:
+                      tableHier.flesh++;
+                      combReady.push('Флеш')
+                      break;
+                  
+                    default:
+                      break;
+                  }
+                }
             }
-            else if (checkFlesh(tableCards[i].inFlesh) && checkStraight(tmpArr)) {
-              combReady.push('Straight Flesh from '+tmpArr[0] +' to '+tableCards[i].inStraight[4]);
-            } 
-            else if (checkFlesh(tableCards[i].inFlesh)) {
-              combReady.push('Flesh of ' +tableCards[i].value.charAt(1));
-            } 
-            else if (checkStraight(tmpArr)) {
-              combReady.push('Staright from '+tmpArr[0] +' to '+tableCards[i].inStraight[4]);
-            }
-          }          
+                  
           }
-        }   
-       console.log(combReady); */
+        }  
 
+      //let tableCombination='';
+       for (const key in tableHier) {
+         if (tableHier[key]>0) {
+          if (key=='pair') {
+            
+          
+          context.commit('SET_TABLE_COMB',{name:key,value:pair1});
+          //console.log('in  stooore '+key+' '+pair1);
+          //tableCombination=key;
+        } else 
+        {
+          context.commit('SET_TABLE_COMB',{name:key,value:''});
+        }
+         }
+       }
         ///=========== END TABLE CHECK===========
 
 
@@ -486,7 +521,9 @@ export const store = new Vuex.Store({
         if (checkStraight(tmpEnemyTable[0].inStraight)) {
           StraighCurrent++;
         }
+        
        
+
         if (RoyalFleshCurrent>0) {
           possibleCombsHierarchy.fleshRoyal++;
         } else if (StraightFlesCurrent>0) {
@@ -539,6 +576,7 @@ export const store = new Vuex.Store({
         //console.log(possibleCombsHierarchy.pair[ind])
         combsForOutput.push({name:'Пара '+possibleCombsHierarchy.pair[ind].value,percent:possibleCombsHierarchy.pair[ind].percent})
       }
+        
        for (const key in possibleCombsHierarchy) {
          if (key!='pair') {
          possibleCombsHierarchy[key]=(possibleCombsHierarchy[key]/combinations.length*100).toFixed(2);
@@ -549,6 +587,8 @@ export const store = new Vuex.Store({
         }
        }
        //console.log('pair')
+
+       
        context.commit('SET_OUTPUT_ENEMY',combsForOutput);
        context.commit('SET_ENEMY_HIERARCHY',possibleCombsHierarchy);
 
@@ -714,37 +754,39 @@ export const store = new Vuex.Store({
           }
         }
 
-        let highestComb='';
-        
+       // let highestComb='';
+       const tableComb=context.getters.GET_TABLE_COMB;
         let readyCombs='';
-
+        if (tableComb.name=='pair') {
+          readyCombs='Пара '+tableComb.value;
+        }
         if (RoyalFlesh!=0) {
           readyCombs='Флеш-Рояль';
-          highestComb='fleshRoyal';
+        //  highestComb='fleshRoyal';
         } else if (StrFlesh!=0) {
           readyCombs='Стрит-Флеш';
-          highestComb='straightFlesh';
+         // highestComb='straightFlesh';
         } else if (quad!=0) {
           readyCombs='Каре '+quad;
-          highestComb='quad';
+        //  highestComb='quad';
         } else if (fh!=0) {
           readyCombs='Фулл-хаус'+fh.charAt(0)+fh.charAt(0)+fh.charAt(0)+fh.charAt(1)+fh.charAt(1);
-          highestComb='fullHouse'
+         // highestComb='fullHouse'
         } else if (Flesh!=0) {
           readyCombs='Флеш';
-          highestComb='flesh'
+         // highestComb='flesh'
         } else if (Straight!=0) {
           readyCombs='Стрит';
-          highestComb='straight'
+         // highestComb='straight'
         } else if (set!=0) {
           readyCombs='Тройка '+set;
-          highestComb='set'
+         // highestComb='set'
         } else if (pair1!=0 && pair2!=0) {
           readyCombs='Две пары '+pair1+' и '+pair2;
-          highestComb='twoPairs';
+          //highestComb='twoPairs';
         } else if (pair1!=0 ) {
           readyCombs='Пара  '+pair1;
-          highestComb='pair'
+          //highestComb='pair'
         } 
 
        // console.log('enemy '+JSON.stringify(enemyHierarchy));
@@ -842,11 +884,22 @@ export const store = new Vuex.Store({
         let lowerEnemyCombs=[];
         let equalComb=0;
         let strongerEnemyCombs=[];
-        let lowerFlag=false;
+        //let lowerFlag=false;
+        console.log('enemy hier');
+
+        ///////===========table COMB
         
+        
+        for (let i = 0; i < enemyHierarchy.pair.length; i++) {
+          if (tableComb.name=='pair' && tableComb.value==enemyHierarchy.pair[i].value) {
+
+            strongerEnemyCombs.push({name:'Пара '+'"'+enemyHierarchy.pair[i].value+'"',percent:100})
+          }
+          
+        }
 
         
-      //если нет сомбинации все добавляем в stronger
+      // все добавляем в stronger
         for (const key in enemyHierarchy) {
           let combName='';
           switch (key) {
@@ -877,30 +930,19 @@ export const store = new Vuex.Store({
             default:
               break;
           }
-          if (key!=highestComb && lowerFlag) {
-           
-            if (key!='pair') {
-             
-              if (enemyHierarchy[key]!=0) {
-                
-                lowerEnemyCombs.push({name:combName,percent:enemyHierarchy[key]});
-              }
-            }
-          } else if (key==highestComb) {
-            if (key!='pair') {  
-              lowerFlag=false;
-              equalComb={name:combName,percent:enemyHierarchy[key]};
-            }
-          } else if (key!=highestComb && !lowerFlag){
-            if (key!='pair') {
-              
-              if (enemyHierarchy[key]!=0) {
-                
-                strongerEnemyCombs.push({name:combName,percent:enemyHierarchy[key]});
-              }
-            }
-          }
+          
+   
+                if (enemyHierarchy[key]>0) {
+                  if (tableComb.name==key) {
+                    strongerEnemyCombs=[];
+                    strongerEnemyCombs.push({name:combName,percent:100});
+                  } else
+                  strongerEnemyCombs.push({name:combName,percent:enemyHierarchy[key]});
+                }
+ 
         }
+
+        
 
         let drawsOnOutput=[];
       
@@ -935,7 +977,9 @@ export const store = new Vuex.Store({
               break;
           } if (drawCombs[key]!=0) {
             
-          
+          if (tableComb.name==key) {
+            drawsOnOutput=[];
+          } else
           drawsOnOutput.push({name:combName,percent:drawCombs[key]});
         }
         }

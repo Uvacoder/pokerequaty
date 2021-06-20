@@ -39,7 +39,7 @@
     <ModalResults class="results" v-if="activeModal" :enemyStronger="enemyStronger" :enemyLower="enemyLower"
      :enemyEqual="enemyEqual" :heroComb="heroComb" :heroDraws="heroDraws" :ID="ID" @close="closeModal" :bankChances="bankChances" :maxPercent="maxPercent" />
   </div>
-  <History :counter="counter" :games="games" :ID="ID" @turnOnAuto="turningOnAvto" @setGame="setHistoryGame" class="history-content" />
+  <!-- <History :counter="counter" :games="games" :ID="ID" @turnOnAuto="turningOnAvto" @setGame="setHistoryGame" class="history-content" /> -->
   </div>
 </template>
 
@@ -51,7 +51,7 @@ import Diapason from './components/Diapason.vue'
 import MainPlayer from './components/MainPlayer.vue'
 import ModalResults from './components/ModalResults.vue'
 import Table from './components/Table.vue'
-import History from './components/History.vue'
+//import History from './components/History.vue'
 import Registr from './components/Registr.vue'
 
 //import axios from 'axios'
@@ -66,7 +66,7 @@ export default {
     Bets,
     ModalResults,
     Autorization,
-    History,
+    //History,
     Registr
     
        
@@ -160,13 +160,18 @@ export default {
       this.$store.dispatch('FIND_STAT');
       this.$store.dispatch('FIND_PLAYER_ODDS');
       
-      this.heroComb=this.$store.getters.GET_HERO_COMB;
+      this.heroComb=this.$store.getters.GET_OUTPUT_HERO_COMB;
       this.heroDraws=this.$store.getters.GET_OUTPUT_DRAWS;
-
+        console.log('app hero comb '+ this.heroComb)
       this.enemyStronger=this.$store.getters.GET_STRONGER_ENEMY_COMBS;
       
 
-      this.maxPercent=this.heroDraws.reduce((a,b)=>Number(a.percent)>Number(b.percent) ? a.percent : b.percent);
+      this.maxPercent=0;
+      for (let i = 0; i < this.heroDraws.length; i++) {
+        if (this.heroDraws[i].percent>this.maxPercent) {
+          this.maxPercent=this.heroDraws[i];
+        }
+      }
       console.log('max '+this.maxPercent);
       const bank=this.$store.getters.GET_BANK;
       const playerBet=this.$store.getters.GET_HERO_TO_CALL;
