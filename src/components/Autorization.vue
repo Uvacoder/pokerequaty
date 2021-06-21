@@ -67,7 +67,7 @@ methods:{
 
       this.$http({
           method: 'POST',
-          url:'https://pacific-hollows-82474.herokuapp.com/login/', 
+          url:'http://localhost:3000/login/', 
           data: data, 
           headers:{'Content-Type':'application/json; charset=utf-8'}
         })
