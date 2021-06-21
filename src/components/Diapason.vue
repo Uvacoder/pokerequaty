@@ -236,7 +236,7 @@ export default {
 
 <style scoped>
 .slider{
-    width:520px;
+    width:450px;
     grid-column-start: 1;
     
     grid-row-start: 10;
@@ -246,13 +246,14 @@ export default {
 
 .slider-value{
     margin-left: 5px;
-    grid-column-start: 2;
+    grid-column-start:2;
     grid-row-start: 10;
     font-size: 18px;
+    margin-left:-80px;
     
 }
 .active{
-    
+    width:100%;
     display: grid;
     grid-template-columns: 30px 30px 30px 30px 30px 30px 30px 30px 30px 30px 30px 30px 30px ; 
     grid-template-rows: 30px 30px 30px 30px 30px 30px 30px 30px 30px 30px 30px 30px 30px ; 

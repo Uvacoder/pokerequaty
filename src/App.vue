@@ -372,7 +372,7 @@ export default {
 
 .all-conten {
   display:flex;
-  justify-content: center;
+  justify-content: space-between;
   flex-wrap: wrap;
 }
 
@@ -440,7 +440,7 @@ header div{
 }
 
 .history-content{
-  width:19.89%;
+  width:15.89%;
   border-left: 1px solid #c2c0c0;
   
 }
@@ -448,7 +448,7 @@ header div{
 
 .main-content{
   display:grid;
-  grid-template-columns: repeat(25,50px);
+  grid-template-columns: 45% 11% 11% 11% 11% 11%;
   grid-template-rows:repeat(21,50px);
   grid-gap:10px;
   margin-top:20px;
@@ -458,6 +458,7 @@ header div{
 
 .clear, 
 .find {
+  grid-column-start: 6;
   border-radius: 5px;
   border:2px solid rgb(0, 132, 255);
   -webkit-transition-duration: 0.1s; /* Safari */
@@ -490,6 +491,7 @@ header div{
 }
 
 .bets{
+  grid-column-start: 2;
   margin-left:5px;
   height:20px;
 }
@@ -527,15 +529,16 @@ button:hover{
 .table{
     grid-row-start:2;
     grid-row-end: 7;
-    grid-column-start: 15;
-    grid-column-end:20;
+    grid-column-start: 2;
+    background: transparent;
+    
 }
 .cards{
     /*position: absolute;
     left:1090px;
     top:500px;*/
     padding-right:10px;
-    grid-column-start: 18;
+    grid-column-start: 3;
     grid-row-start: 8;
     z-index: 5;
 }

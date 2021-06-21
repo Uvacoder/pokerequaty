@@ -175,6 +175,8 @@ export default {
     
     .table-content{
         position:static;
+        background: transparent;
+
         }
     
     .in-table{     
