@@ -44,7 +44,7 @@ export default {
       
     this.$http({
       method: 'POST',
-      url:'http://localhost:3000/register/', 
+      url:'https://pacific-hollows-82474.herokuapp.com/register/', 
       data: JSON.stringify(data), 
       headers:{'Content-Type': 'application/json; charset=utf-8'}
     })

@@ -105,7 +105,7 @@ export default {
       
        this.$http({
           method: 'POST',
-          url:'http://localhost:3000/checkauth', 
+          url:'https://pacific-hollows-82474.herokuapp.com/checkauth', 
           data:{token:sessionStorage.token},
           headers:{'Content-Type':'application/json; charset=utf-8'}
         })
@@ -127,7 +127,7 @@ export default {
     deleteGame(number){
       this.$http({
           method: 'POST',
-          url:'http://localhost:3000/deletegame/', 
+          url:'https://pacific-hollows-82474.herokuapp.com/deletegame/', 
           data: {id:this.ID,number:number}, 
           headers:{'Content-Type':'application/json; charset=utf-8'}
         })
@@ -246,7 +246,7 @@ export default {
 
     this.$http({
           method: 'POST',
-          url:'http://localhost:3000/addgame/', 
+          url:'https://pacific-hollows-82474.herokuapp.com/addgame/', 
           data: JSON.stringify(data1), 
           headers:{'Content-Type':'application/json; charset=utf-8'}
         })
